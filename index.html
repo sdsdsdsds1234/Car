@@ -4,70 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Учёт автомобилей</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            /* Светлая тема */
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --accent-color: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        [data-theme="dark"] {
+            /* Тёмная тема */
+            --bg-primary: #1a1d23;
+            --bg-secondary: #212529;
+            --bg-card: #2c3038;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --border-color: #495057;
+            --accent-color: #0d6efd;
+            --accent-hover: #3d8bfd;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--gradient);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
         }
-        
+
+        h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(180deg);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
         .search-box {
             width: 100%;
-            padding: 15px;
+            padding: 16px 20px 16px 50px;
             font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-        
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
         .car-list {
             display: grid;
-            gap: 10px;
+            gap: 12px;
+            margin-bottom: 100px;
         }
-        
+
         .car-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid var(--accent-color);
         }
-        
+
         .car-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-hover);
         }
-        
+
         .car-number {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2196F3;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
+
         .car-vin {
             font-size: 14px;
-            color: #666;
-            margin-top: 5px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -75,120 +203,322 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             z-index: 1000;
+            animation: fadeIn 0.3s;
         }
-        
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .modal-content {
-            background: white;
+            background: var(--bg-secondary);
             margin: 5% auto;
             padding: 30px;
             width: 90%;
-            max-width: 600px;
-            border-radius: 12px;
+            max-width: 650px;
+            border-radius: 16px;
             max-height: 85vh;
             overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
         }
-        
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            color: var(--text-primary);
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-primary);
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        
+
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #555;
-        }
-        
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
             font-size: 14px;
         }
-        
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
         textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
+            font-family: inherit;
         }
-        
+
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             margin-right: 10px;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
         .btn-primary {
-            background: #2196F3;
+            background: var(--accent-color);
             color: white;
         }
-        
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
         .btn-secondary {
-            background: #ddd;
-            color: #333;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
         }
-        
+
         .btn-danger {
-            background: #f44336;
+            background: var(--danger-color);
             color: white;
         }
-        
-        .add-btn {
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: #000;
+        }
+
+        .action-buttons {
             position: fixed;
             bottom: 30px;
             right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .fab {
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: #2196F3;
-            color: white;
-            font-size: 30px;
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(33,150,243,0.4);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .fab-add {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .fab-import {
+            background: var(--success-color);
+            color: white;
+        }
+
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            align-items: flex-start;
         }
-        
+
         .info-label {
-            font-weight: 500;
-            color: #666;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 180px;
+            font-size: 14px;
         }
-        
+
         .info-value {
-            color: #333;
+            color: var(--text-primary);
+            flex: 1;
+            text-align: right;
+            word-break: break-word;
         }
-        
+
         canvas {
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
             width: 100%;
             height: 300px;
             touch-action: none;
+            background: var(--bg-primary);
+            cursor: crosshair;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px;
+            }
+
+            .info-row {
+                flex-direction: column;
+            }
+
+            .info-label, .info-value {
+                text-align: left;
+                width: 100%;
+            }
+
+            .info-value {
+                margin-top: 5px;
+            }
+
+            .action-buttons {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .fab {
+                width: 55px;
+                height: 55px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚗 Учёт автомобилей</h1>
-        
-        <input type="text" class="search-box" id="searchInput" placeholder="Поиск по госномеру или VIN...">
-        
-        <div class="car-list" id="carList"></div>
+        <header>
+            <h1><i class="fas fa-car"></i> Учёт автомобилей</h1>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCars">0</div>
+                <div class="stat-label">Всего машин</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="filteredCars">0</div>
+                <div class="stat-label">Найдено</div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-box" id="searchInput" placeholder="Поиск по госномеру или VIN...">
+        </div>
+
+        <div class="car-list" id="carList">
+            <div class="empty-state">
+                <i class="fas fa-car"></i>
+                <p>Загрузка данных...</p>
+            </div>
+        </div>
     </div>
-    
-    <button class="add-btn" onclick="openAddModal()">+</button>
-    
+
+    <div class="action-buttons">
+        <button class="fab fab-import" onclick="document.getElementById('importFile').click()" title="Импорт CSV">
+            <i class="fas fa-file-import"></i>
+        </button>
+        <button class="fab fab-add" onclick="openAddModal()" title="Добавить машину">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(event)">
+
     <div class="modal" id="carModal">
         <div class="modal-content" id="modalContent"></div>
     </div>
@@ -198,7 +528,6 @@
         import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot } 
             from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // TODO: Замени на свои данные из Firebase Console
         const firebaseConfig = {
             apiKey: "AIzaSyD55WtH_vvZs2LluNmiSzvhFveUSsk-sws",
             authDomain: "car-app-a172b.firebaseapp.com",
@@ -214,28 +543,78 @@
 
         let cars = [];
         let currentCarId = null;
+        let canvas, ctx, isDrawing = false;
 
-        // Загрузка данных в реальном времени
+        // Тема
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        window.toggleTheme = function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        };
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        initTheme();
+
+        // Загрузка данных
         onSnapshot(carsCollection, (snapshot) => {
             cars = [];
             snapshot.forEach((doc) => {
                 cars.push({ id: doc.id, ...doc.data() });
             });
             renderCars();
+            updateStats();
         });
+
+        function updateStats() {
+            document.getElementById('totalCars').textContent = cars.length;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = cars.filter(car => 
+                (car.license_plate || '').toLowerCase().includes(search) ||
+                (car.vin || '').toLowerCase().includes(search)
+            );
+            document.getElementById('filteredCars').textContent = filtered.length;
+        }
 
         function renderCars() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const filtered = cars.filter(car => 
-                (car.licensePlate || '').toLowerCase().includes(search) ||
+                (car.license_plate || '').toLowerCase().includes(search) ||
                 (car.vin || '').toLowerCase().includes(search)
             );
 
             const list = document.getElementById('carList');
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-car"></i>
+                        <p>${cars.length === 0 ? 'Добавьте первую машину' : 'Ничего не найдено'}</p>
+                    </div>
+                `;
+                return;
+            }
+
             list.innerHTML = filtered.map(car => `
                 <div class="car-card" onclick="openCarDetails('${car.id}')">
-                    <div class="car-number">${car.licensePlate || 'Без номера'}</div>
-                    <div class="car-vin">VIN: ${car.vin || 'не указан'}</div>
+                    <div class="car-number">
+                        <i class="fas fa-car"></i>
+                        ${car.license_plate || 'Без номера'}
+                    </div>
+                    <div class="car-vin">
+                        <i class="fas fa-barcode"></i> ${car.vin || 'VIN не указан'}
+                    </div>
                 </div>
             `).join('');
         }
@@ -245,199 +624,196 @@
             currentCarId = id;
             
             document.getElementById('modalContent').innerHTML = `
-                <h2>Карточка автомобиля</h2>
-                <div class="info-row">
-                    <span class="info-label">Госномер:</span>
-                    <span class="info-value">${car.licensePlate || '-'}</span>
+                <div class="modal-header">
+                    <h2><i class="fas fa-car"></i> Карточка автомобиля</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">VIN:</span>
+                    <span class="info-label"><i class="fas fa-id-card"></i> Госномер:</span>
+                    <span class="info-value">${car.license_plate || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-barcode"></i> VIN:</span>
                     <span class="info-value">${car.vin || '-'}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Пломбы АКБ:</span>
-                    <span class="info-value">${car.batterySeals || '-'}</span>
+                    <span class="info-label"><i class="fas fa-battery-full"></i> Пломбы АКБ:</span>
+                    <span class="info-value">${car.battery_seals || '-'}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Навесное оборудование:</span>
+                    <span class="info-label"><i class="fas fa-tools"></i> Навесное оборудование:</span>
                     <span class="info-value">${car.equipment || '-'}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Комментарий:</span>
+                    <span class="info-label"><i class="fas fa-comment"></i> Комментарий:</span>
                     <span class="info-value">${car.comment || '-'}</span>
                 </div>
                 ${car.drawing ? `
-                    <div class="info-row">
-                        <span class="info-label">Рисунок:</span>
-                        <img src="${car.drawing}" style="max-width:100%;border-radius:6px;">
+                    <div class="info-row" style="display:block;">
+                        <span class="info-label"><i class="fas fa-paint-brush"></i> Рисунок:</span>
+                        <img src="${car.drawing}" style="max-width:100%;border-radius:8px;margin-top:10px;border:2px solid var(--border-color);">
                     </div>
                 ` : ''}
-                <div style="margin-top:20px;">
-                    <button class="btn btn-primary" onclick="openEditModal('${id}')">Редактировать</button>
-                    <button class="btn btn-danger" onclick="deleteCar('${id}')">Удалить</button>
-                    <button class="btn btn-secondary" onclick="closeModal()">Закрыть</button>
+                <div style="margin-top:25px;">
+                    <button class="btn btn-primary" onclick="openEditModal('${id}')">
+                        <i class="fas fa-edit"></i> Редактировать
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteCar('${id}')">
+                        <i class="fas fa-trash"></i> Удалить
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
                 </div>
             `;
             document.getElementById('carModal').style.display = 'block';
         };
 
+        function generateFormHTML(car = {}) {
+            return `
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i> Госномер:</label>
+                    <input type="text" id="editLicensePlate" value="${car.license_plate || ''}" placeholder="А123БВ777">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-barcode"></i> VIN:</label>
+                    <input type="text" id="editVin" value="${car.vin || ''}" placeholder="XTA210930Y2764409">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-battery-full"></i> Пломбы АКБ:</label>
+                    <input type="text" id="editBatterySeals" value="${car.battery_seals || ''}" placeholder="Номер пломбы">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tools"></i> Навесное оборудование:</label>
+                    <input type="text" id="editEquipment" value="${car.equipment || ''}" placeholder="Номера оборудования">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-comment"></i> Текстовый комментарий:</label>
+                    <textarea id="editComment" placeholder="Ваши заметки...">${car.comment || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-paint-brush"></i> Рукописный комментарий:</label>
+                    <canvas id="drawingCanvas"></canvas>
+                    <button class="btn btn-secondary" onclick="clearCanvas()" style="margin-top:10px;">
+                        <i class="fas fa-eraser"></i> Очистить
+                    </button>
+                </div>
+                <div style="margin-top:25px;">
+                    <button class="btn btn-primary" onclick="saveCar()">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                </div>
+            `;
+        }
+
         window.openEditModal = function(id) {
             const car = cars.find(c => c.id === id);
             currentCarId = id;
-            
             document.getElementById('modalContent').innerHTML = `
-                <h2>Редактирование</h2>
-                <div class="form-group">
-                    <label>Госномер:</label>
-                    <input type="text" id="editLicensePlate" value="${car.licensePlate || ''}">
+                <div class="modal-header">
+                    <h2><i class="fas fa-edit"></i> Редактирование</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
                 </div>
-                <div class="form-group">
-                    <label>VIN:</label>
-                    <input type="text" id="editVin" value="${car.vin || ''}">
-                </div>
-                <div class="form-group">
-                    <label>Пломбы АКБ:</label>
-                    <input type="text" id="editBatterySeals" value="${car.batterySeals || ''}">
-                </div>
-                <div class="form-group">
-                    <label>Номера навесного оборудования:</label>
-                    <input type="text" id="editEquipment" value="${car.equipment || ''}">
-                </div>
-                <div class="form-group">
-                    <label>Текстовый комментарий:</label>
-                    <textarea id="editComment">${car.comment || ''}</textarea>
-                </div>
-                <div class="form-group">
-                    <label>Рукописный комментарий (рисунок):</label>
-                    <canvas id="drawingCanvas"></canvas>
-                    <button class="btn btn-secondary" onclick="clearCanvas()" style="margin-top:10px;">Очистить рисунок</button>
-                </div>
-                <div style="margin-top:20px;">
-                    <button class="btn btn-primary" onclick="saveCar()">Сохранить</button>
-                    <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-                </div>
-            `;
-            
-            initCanvas();
+            ` + generateFormHTML(car);
+            document.getElementById('carModal').style.display = 'block';
+            setTimeout(initCanvas, 100);
+            if (car.drawing) loadDrawingToCanvas(car.drawing);
         };
 
         window.openAddModal = function() {
             currentCarId = null;
             document.getElementById('modalContent').innerHTML = `
-                <h2>Добавить автомобиль</h2>
-                <div class="form-group">
-                    <label>Госномер:</label>
-                    <input type="text" id="editLicensePlate">
+                <div class="modal-header">
+                    <h2><i class="fas fa-plus-circle"></i> Добавить автомобиль</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
                 </div>
-                <div class="form-group">
-                    <label>VIN:</label>
-                    <input type="text" id="editVin">
-                </div>
-                <div class="form-group">
-                    <label>Пломбы АКБ:</label>
-                    <input type="text" id="editBatterySeals">
-                </div>
-                <div class="form-group">
-                    <label>Номера навесного оборудования:</label>
-                    <input type="text" id="editEquipment">
-                </div>
-                <div class="form-group">
-                    <label>Текстовый комментарий:</label>
-                    <textarea id="editComment"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Рукописный комментарий (рисунок):</label>
-                    <canvas id="drawingCanvas"></canvas>
-                    <button class="btn btn-secondary" onclick="clearCanvas()" style="margin-top:10px;">Очистить рисунок</button>
-                </div>
-                <div style="margin-top:20px;">
-                    <button class="btn btn-primary" onclick="saveCar()">Сохранить</button>
-                    <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-                </div>
-            `;
-            
+            ` + generateFormHTML();
             document.getElementById('carModal').style.display = 'block';
-            initCanvas();
+            setTimeout(initCanvas, 100);
         };
 
-        let canvas, ctx, isDrawing = false;
-        
         function initCanvas() {
             canvas = document.getElementById('drawingCanvas');
+            if (!canvas) return;
             ctx = canvas.getContext('2d');
             canvas.width = canvas.offsetWidth;
             canvas.height = 300;
-            
-            canvas.addEventListener('mousedown', startDrawing);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#000';
+
+            const getPos = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            };
+
+            const start = (e) => { e.preventDefault(); isDrawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
+            const draw = (e) => { 
+                if (!isDrawing) return; 
+                e.preventDefault(); 
+                const pos = getPos(e); 
+                ctx.lineTo(pos.x, pos.y); 
+                ctx.stroke(); 
+            };
+            const stop = (e) => { e.preventDefault(); isDrawing = false; };
+
+            canvas.addEventListener('mousedown', start);
             canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-            
-            canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                startDrawing({ offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top });
-            });
-            canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                draw({ offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top });
-            });
-            canvas.addEventListener('touchend', stopDrawing);
-            
-            const car = cars.find(c => c.id === currentCarId);
-            if (car && car.drawing) {
-                const img = new Image();
-                img.onload = () => ctx.drawImage(img, 0, 0);
-                img.src = car.drawing;
-            }
+            canvas.addEventListener('mouseup', stop);
+            canvas.addEventListener('mouseout', stop);
+            canvas.addEventListener('touchstart', start, {passive: false});
+            canvas.addEventListener('touchmove', draw, {passive: false});
+            canvas.addEventListener('touchend', stop);
         }
 
-        function startDrawing(e) {
-            isDrawing = true;
-            ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
-
-        function stopDrawing() {
-            isDrawing = false;
+        function loadDrawingToCanvas(dataUrl) {
+            const img = new Image();
+            img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            img.src = dataUrl;
         }
 
         window.clearCanvas = function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
         };
 
         window.saveCar = async function() {
+            const btn = document.querySelector('.btn-primary');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+            btn.disabled = true;
+
             const carData = {
-                licensePlate: document.getElementById('editLicensePlate').value,
-                vin: document.getElementById('editVin').value,
-                batterySeals: document.getElementById('editBatterySeals').value,
-                equipment: document.getElementById('editEquipment').value,
-                comment: document.getElementById('editComment').value,
-                drawing: canvas.toDataURL()
+                license_plate: document.getElementById('editLicensePlate').value.trim(),
+                vin: document.getElementById('editVin').value.trim(),
+                battery_seals: document.getElementById('editBatterySeals').value.trim(),
+                equipment: document.getElementById('editEquipment').value.trim(),
+                comment: document.getElementById('editComment').value.trim(),
+                drawing: canvas ? canvas.toDataURL() : null
             };
 
-            if (currentCarId) {
-                await updateDoc(doc(db, 'cars', currentCarId), carData);
-            } else {
-                await addDoc(carsCollection, carData);
+            try {
+                if (currentCarId) {
+                    await updateDoc(doc(db, 'cars', currentCarId), carData);
+                } else {
+                    await addDoc(carsCollection, carData);
+                }
+                closeModal();
+            } catch (error) {
+                alert('Ошибка сохранения: ' + error.message);
             }
-            
-            closeModal();
+
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
         };
 
         window.deleteCar = async function(id) {
-            if (confirm('Удалить этот автомобиль?')) {
+            if (confirm('Удалить эту карточку автомобиля безвозвратно?')) {
                 await deleteDoc(doc(db, 'cars', id));
                 closeModal();
             }
@@ -447,7 +823,81 @@
             document.getElementById('carModal').style.display = 'none';
         };
 
-        document.getElementById('searchInput').addEventListener('input', renderCars);
+        // Импорт CSV
+        window.importCSV = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                
+                if (lines.length < 2) {
+                    alert('Файл пуст или содержит только заголовки');
+                    return;
+                }
+
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                const carsToAdd = [];
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    const values = line.split(',').map(v => v.trim());
+                    const carData = {};
+
+                    headers.forEach((header, index) => {
+                        carData[header] = values[index] || '';
+                    });
+
+                    if (carData.license_plate || carData.vin) {
+                        carsToAdd.push(carData);
+                    }
+                }
+
+                if (carsToAdd.length === 0) {
+                    alert('Не найдено ни одной машины для импорта');
+                    return;
+                }
+
+                if (confirm(`Найдено ${carsToAdd.length} машин. Добавить их все?`)) {
+                    const btn = document.querySelector('.fab-import');
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    btn.disabled = true;
+
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    for (const carData of carsToAdd) {
+                        try {
+                            await addDoc(carsCollection, carData);
+                            successCount++;
+                        } catch (error) {
+                            console.error('Ошибка добавления:', error);
+                            errorCount++;
+                        }
+                    }
+
+                    alert(`✅ Импортировано: ${successCount}\n❌ Ошибок: ${errorCount}`);
+                    btn.innerHTML = '<i class="fas fa-file-import"></i>';
+                    btn.disabled = false;
+                }
+            };
+
+            reader.readAsText(file);
+            event.target.value = '';
+        };
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            renderCars();
+            updateStats();
+        });
+
+        document.getElementById('carModal').addEventListener('click', (e) => {
+            if (e.target.id === 'carModal') closeModal();
+        });
     </script>
 </body>
 </html>
