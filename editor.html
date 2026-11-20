@@ -190,8 +190,6 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        console.log('Редактор загружен');
-        
         const ICONS = ['fa-car','fa-truck','fa-truck-pickup','fa-truck-monster','fa-snowplow','fa-tractor','fa-bus','fa-van-shuttle','fa-truck-moving','fa-taxi','fa-shuttle-van','fa-ambulance'];
         const PRESETS = [
             { name: '🌊 Синий', c1: '#667eea', c2: '#764ba2' },
@@ -245,66 +243,79 @@
             { license_plate: 'К012ЛМ789', vin: 'XTA211260Y5097732', vehicle_type: 'Экскаваторы', year: 2019 },
         ];
 
+        function safeGet(id) {
+            const el = document.getElementById(id);
+            if (!el) console.warn('Элемент не найден:', id);
+            return el;
+        }
+
         function init() {
-            console.log('Инициализация редактора');
-            initTabs();
-            initIcons();
-            initPresets();
-            initTypeFilters();
-            bindEvents();
-            updatePreview();
-            console.log('Редактор инициализирован');
+            try {
+                console.log('Инициализация редактора...');
+                initTabs();
+                initIcons();
+                initPresets();
+                initTypeFilters();
+                bindEvents();
+                updatePreview();
+                console.log('Редактор инициализирован успешно');
+            } catch(e) {
+                console.error('Ошибка инициализации:', e);
+                alert('Ошибка загрузки редактора: ' + e.message + '\n\nОткрой консоль браузера (F12) для деталей.');
+            }
         }
 
         function initTabs() {
-            console.log('Инициализация вкладок');
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', function() {
-                    console.log('Клик по вкладке:', this.dataset.tab);
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                     this.classList.add('active');
-                    document.querySelectorAll(`.section[data-section="${this.dataset.tab}"]`).forEach(s => s.classList.add('active'));
+                    const tabName = this.dataset.tab;
+                    document.querySelectorAll(`.section[data-section="${tabName}"]`).forEach(s => s.classList.add('active'));
                 });
             });
         }
 
         function initIcons() {
-            const grid = document.getElementById('iconGrid');
+            const grid = safeGet('iconGrid');
+            if (!grid) return;
             grid.innerHTML = ICONS.map(icon =>
                 `<div class="icon-option ${icon === settings.icon ? 'active' : ''}" onclick="selectIcon('${icon}')"><i class="fas ${icon}"></i></div>`
             ).join('');
         }
 
         function initPresets() {
-            const container = document.getElementById('presets');
+            const container = safeGet('presets');
+            if (!container) return;
             container.innerHTML = PRESETS.map((p, i) =>
                 `<div class="preset" style="background:linear-gradient(135deg,${p.c1},${p.c2})" onclick="applyPreset(${i})">${p.name}</div>`
             ).join('');
         }
 
         function initTypeFilters() {
-            const container = document.getElementById('typeFilters');
+            const container = safeGet('typeFilters');
+            if (!container) return;
             container.innerHTML = ALL_TYPES.map(type =>
                 `<label class="checkbox-item"><input type="checkbox" value="${type}" ${settings.enabledTypes.includes(type) ? 'checked' : ''}>${type}</label>`
             ).join('');
         }
 
         function bindEvents() {
-            console.log('Привязка событий');
             const ids = ['headerTitle','headerSubtitle','bgType','color1','color1Text','color2','color2Text','angle','fontSize','radius','padding','cardSize','cardRadius','cardBorder','accentColor','accentColorText','successColor','successColorText','dangerColor','dangerColorText','lightBg','lightBgText','lightCard','lightCardText','darkBg','darkBgText','darkCard','darkCardText','pageTitle','pageFavicon'];
             ids.forEach(id => {
-                const el = document.getElementById(id);
+                const el = safeGet(id);
                 if (el) {
                     el.addEventListener('input', handleInput);
                     el.addEventListener('change', handleInput);
                 }
             });
             ['showVin','showType','showYear','showSeals'].forEach(id => {
-                const el = document.getElementById(id);
+                const el = safeGet(id);
                 if (el) el.addEventListener('change', handleInput);
             });
-            document.querySelectorAll('#typeFilters input').forEach(cb => cb.addEventListener('change', handleTypeFilterChange));
+            const typeCheckboxes = document.querySelectorAll('#typeFilters input');
+            typeCheckboxes.forEach(cb => cb.addEventListener('change', handleTypeFilterChange));
         }
 
         function handleInput(e) {
@@ -313,23 +324,25 @@
             if (id.endsWith('Text')) {
                 const colorId = id.replace('Text','');
                 if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-                    document.getElementById(colorId).value = val;
+                    const colorEl = safeGet(colorId);
+                    if (colorEl) colorEl.value = val;
                     settings[colorId] = val;
                 }
-            } else if (document.getElementById(id + 'Text')) {
-                document.getElementById(id + 'Text').value = val;
-                settings[id] = val;
             } else {
+                const textEl = safeGet(id + 'Text');
+                if (textEl) textEl.value = val;
                 settings[id] = ['fontSize','radius','padding','angle','cardRadius','cardBorder'].includes(id) ? parseInt(val) : val;
             }
-            const valueEl = document.getElementById(id + 'Value');
+            const valueEl = safeGet(id + 'Value');
             if (valueEl) {
                 if (id === 'angle') valueEl.textContent = val + '°';
                 else valueEl.textContent = val + 'px';
             }
             if (id === 'bgType') {
-                document.getElementById('color2Field').style.display = val === 'gradient' ? 'block' : 'none';
-                document.getElementById('angleField').style.display = val === 'gradient' ? 'block' : 'none';
+                const color2Field = safeGet('color2Field');
+                const angleField = safeGet('angleField');
+                if (color2Field) color2Field.style.display = val === 'gradient' ? 'block' : 'none';
+                if (angleField) angleField.style.display = val === 'gradient' ? 'block' : 'none';
             }
             updatePreview();
         }
@@ -340,25 +353,30 @@
         }
 
         window.selectIcon = function(icon) {
-            console.log('Выбрана иконка:', icon);
             settings.icon = icon;
             initIcons();
             updatePreview();
         };
 
         window.applyPreset = function(index) {
-            console.log('Применён пресет:', index);
             const p = PRESETS[index];
             settings.color1 = p.c1;
             settings.color2 = p.c2;
             settings.bgType = 'gradient';
-            document.getElementById('color1').value = p.c1;
-            document.getElementById('color1Text').value = p.c1;
-            document.getElementById('color2').value = p.c2;
-            document.getElementById('color2Text').value = p.c2;
-            document.getElementById('bgType').value = 'gradient';
-            document.getElementById('color2Field').style.display = 'block';
-            document.getElementById('angleField').style.display = 'block';
+            const c1 = safeGet('color1');
+            const c1Text = safeGet('color1Text');
+            const c2 = safeGet('color2');
+            const c2Text = safeGet('color2Text');
+            const bgType = safeGet('bgType');
+            const color2Field = safeGet('color2Field');
+            const angleField = safeGet('angleField');
+            if (c1) c1.value = p.c1;
+            if (c1Text) c1Text.value = p.c1;
+            if (c2) c2.value = p.c2;
+            if (c2Text) c2Text.value = p.c2;
+            if (bgType) bgType.value = 'gradient';
+            if (color2Field) color2Field.style.display = 'block';
+            if (angleField) angleField.style.display = 'block';
             updatePreview();
         };
 
@@ -369,13 +387,16 @@
 
         window.togglePreviewTheme = function() {
             previewTheme = previewTheme === 'light' ? 'dark' : 'light';
-            document.getElementById('previewContainer').className = 'preview-container ' + previewTheme;
-            document.getElementById('previewThemeLabel').textContent = previewTheme === 'light' ? 'Светлая тема' : 'Тёмная тема';
+            const container = safeGet('previewContainer');
+            const label = safeGet('previewThemeLabel');
+            if (container) container.className = 'preview-container ' + previewTheme;
+            if (label) label.textContent = previewTheme === 'light' ? 'Светлая тема' : 'Тёмная тема';
             updatePreview();
         };
 
         function updatePreview() {
-            const container = document.getElementById('previewContainer');
+            const container = safeGet('previewContainer');
+            if (!container) return;
             const isLight = previewTheme === 'light';
             const bg = settings.bgType === 'gradient' ? `linear-gradient(${settings.angle}deg, ${settings.color1} 0%, ${settings.color2} 100%)` : settings.color1;
             const cardPadding = settings.cardSize === 'compact' ? '10px 12px' : settings.cardSize === 'large' ? '18px 20px' : '14px 16px';
@@ -388,113 +409,6 @@
             container.style.background = appBg;
             container.style.color = textColor;
 
-            container.innerHTML = `
-                <div class="pv-header" style="background:${bg};border-radius:${settings.radius}px;padding:${settings.padding}px 18px;margin:15px;">
-                    <div>
-                        <div class="pv-title" style="font-size:${settings.fontSize}px;"><i class="fas ${settings.icon}"></i><span>${settings.headerTitle}</span></div>
-                        ${settings.headerSubtitle ? `<div class="pv-subtitle">${settings.headerSubtitle}</div>` : ''}
-                    </div>
-                    <div style="color:white;font-size:18px;"><i class="fas fa-cog"></i></div>
-                </div>
-                <div class="pv-stats" style="background:${cardBg};color:${textSec};margin:0 15px;">
-                    <span>Всего машин: <strong style="color:${settings.accentColor};">4</strong></span>
-                </div>
-                <div style="position:relative;margin:12px 15px 0;">
-                    <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:${textSec};"></i>
-                    <input class="pv-search" placeholder="Поиск..." style="background:${cardBg};border-color:${isLight ? '#dee2e6' : '#495057'};color:${textColor};">
-                </div>
-                <div style="margin:12px 15px 0;">
-                    ${TEST_CARS.filter(c => settings.enabledTypes.includes(c.vehicle_type)).map(car => `
-                        <div class="pv-car-card" style="background:${cardBg};border-radius:${settings.cardRadius}px;border-left:${settings.cardBorder}px solid ${settings.accentColor};padding:${cardPadding};">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                                <div class="pv-car-number" style="color:${settings.accentColor};font-size:${cardFontSize};"><i class="fas fa-car"></i> ${car.license_plate}</div>
-                                ${settings.showType ? `<span class="pv-type-badge" style="background:${isLight ? '#f0f0f0' : '#1e2235'};color:${textSec};">${car.vehicle_type}</span>` : ''}
-                            </div>
-                            <div class="pv-car-meta" style="color:${textSec};">
-                                ${settings.showVin ? `<span><i class="fas fa-barcode"></i> ${car.vin}</span>` : ''}
-                                ${settings.showYear ? `<span><i class="fas fa-calendar"></i> ${car.year} г.</span>` : ''}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>`;
-        }
+            const visibleCars = TEST_CARS.filter(c => settings.enabledTypes.includes(c.vehicle_type));
 
-        window.downloadSettings = function() {
-            console.log('Скачивание settings.json');
-            const data = JSON.stringify(settings, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'settings.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('✓ settings.json скачан');
-        };
-
-        window.loadSettingsFile = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const loaded = JSON.parse(e.target.result);
-                    settings = { ...DEFAULT_SETTINGS, ...loaded };
-                    syncUIFromState();
-                    initIcons();
-                    initTypeFilters();
-                    updatePreview();
-                    showToast('✓ Настройки загружены');
-                } catch(err) {
-                    alert('Ошибка: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        };
-
-        window.resetAll = function() {
-            if (confirm('Сбросить все настройки?')) {
-                settings = { ...DEFAULT_SETTINGS };
-                syncUIFromState();
-                initIcons();
-                initTypeFilters();
-                updatePreview();
-                showToast('✓ Сброшено');
-            }
-        };
-
-        function syncUIFromState() {
-            Object.keys(settings).forEach(key => {
-                const el = document.getElementById(key);
-                if (!el) return;
-                if (el.type === 'checkbox') el.checked = settings[key];
-                else el.value = settings[key];
-                const textEl = document.getElementById(key + 'Text');
-                if (textEl) textEl.value = settings[key];
-                const valueEl = document.getElementById(key + 'Value');
-                if (valueEl) {
-                    if (key === 'angle') valueEl.textContent = settings[key] + '°';
-                    else valueEl.textContent = settings[key] + 'px';
-                }
-            });
-            document.getElementById('color2Field').style.display = settings.bgType === 'gradient' ? 'block' : 'none';
-            document.getElementById('angleField').style.display = settings.bgType === 'gradient' ? 'block' : 'none';
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // Запуск
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    </script>
-</body>
-</html>
+     
