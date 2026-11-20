@@ -84,8 +84,8 @@
         .close-btn { background: none; border: none; font-size: 28px; color: var(--text-secondary); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; }
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text-primary); font-size: 14px; }
-        input, textarea, select { width: 100%; padding: 11px 14px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--text-primary); }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-color); }
+        input, textarea { width: 100%; padding: 11px 14px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--text-primary); }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent-color); }
         textarea { resize: vertical; min-height: 80px; font-family: inherit; }
         .btn { padding: 11px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-right: 8px; margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background: var(--accent-color); color: white; }
@@ -115,6 +115,17 @@
         .import-btn-full { width: 100%; padding: 14px; background: var(--success-color); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .config-link { display: inline-block; margin-top: 10px; color: var(--accent-color); font-size: 13px; text-decoration: none; }
         .config-link:hover { text-decoration: underline; }
+        
+        /* Кастомный dropdown для типа ТС */
+        .custom-select { position: relative; width: 100%; }
+        .custom-select-value { padding: 11px 14px; border: 2px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); cursor: pointer; font-size: 14px; }
+        .custom-select-value:hover { border-color: var(--accent-color); }
+        .custom-select-options { display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 8px; margin-top: 4px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .custom-select-options.show { display: block; }
+        .custom-select-option { padding: 10px 14px; cursor: pointer; font-size: 14px; color: var(--text-primary); }
+        .custom-select-option:hover { background: var(--accent-color); color: white; }
+        .custom-select-option.selected { background: var(--accent-color); color: white; font-weight: 600; }
+        
         @media (max-width: 768px) { h1 { font-size: calc(var(--header-font-size) - 4px); } .modal-content { margin: 5% auto; padding: 18px; } .info-row { flex-direction: column; gap: 5px; } .info-label { min-width: auto; } .equipment-item { flex-wrap: wrap; } .equipment-item select { width: 100%; } }
     </style>
 </head>
@@ -201,7 +212,6 @@
                 ? `linear-gradient(${settings.angle}deg, ${settings.color1} 0%, ${settings.color2} 100%)`
                 : settings.color1;
 
-            // Обновляем CSS-переменные в одном месте — без дублирования стилей
             root.style.setProperty('--accent-color', settings.accentColor);
             root.style.setProperty('--accent-hover', adjustColor(settings.accentColor, -20));
             root.style.setProperty('--success-color', settings.successColor);
@@ -221,17 +231,14 @@
             root.style.setProperty('--card-padding', cardPadding);
             root.style.setProperty('--card-number-size', cardFontSize);
 
-            // Тёмная тема — через CSS-переменные в существующем стиле
             const darkStyle = document.getElementById('dynamic-theme-style');
             if (darkStyle) {
                 const darkRules = `[data-theme="dark"] { --bg-primary: ${settings.darkBg}; --bg-secondary: ${settings.darkCard}; --bg-card: ${settings.darkCard}; }`;
-                // Находим и заменяем только блок [data-theme="dark"]
                 const fullCSS = darkStyle.textContent;
                 const newCSS = fullCSS.replace(/\[data-theme="dark"\]\s*\{[^}]*\}/, darkRules);
                 darkStyle.textContent = newCSS;
             }
 
-            // Шапка
             const titleEl = document.getElementById('headerTitle');
             titleEl.innerHTML = `<i class="fas ${settings.icon}"></i> ${settings.headerTitle}`;
             if (settings.headerSubtitle) {
@@ -241,7 +248,6 @@
                 titleEl.appendChild(sub);
             }
 
-            // Страница
             document.getElementById('pageTitle').textContent = settings.pageTitle;
             document.getElementById('pageFavicon').href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${encodeURIComponent(settings.pageFavicon)}</text></svg>`;
         }
@@ -252,7 +258,6 @@
                 if (res.ok) {
                     const loaded = await res.json();
                     settings = { ...DEFAULT_SETTINGS, ...loaded };
-                    // Защита от пустого массива типов
                     if (!settings.enabledTypes || settings.enabledTypes.length === 0) {
                         settings.enabledTypes = DEFAULT_SETTINGS.enabledTypes;
                     }
@@ -333,7 +338,7 @@
                         ${settings.showType && c.vehicle_type ? `<div class="car-type-badge">${c.vehicle_type}</div>` : ''}
                     </div>
                     <div class="car-meta">
-                        ${settings.showVin ? `<span><i class="fas fa-barcode"></i> ${c.vin || 'VIN не указан'}</span>` : ''}
+                        ${settings.showVin ? `<span>VIN: ${c.vin || 'не указан'}</span>` : ''}
                         ${settings.showYear && c.year ? `<span><i class="fas fa-calendar"></i> ${c.year} г.</span>` : ''}
                     </div>
                 </div>
@@ -349,7 +354,7 @@
             document.getElementById('modalContent').innerHTML = `
                 <div class="modal-header"><h2><i class="fas fa-car"></i> Карточка автомобиля</h2><button class="close-btn" onclick="closeModal()">&times;</button></div>
                 <div class="info-row"><span class="info-label"><i class="fas fa-id-card"></i> Госномер:</span><span class="info-value">${c.license_plate || '-'}</span></div>
-                <div class="info-row"><span class="info-label"><i class="fas fa-barcode"></i> VIN:</span><span class="info-value">${c.vin || '-'}</span></div>
+                <div class="info-row"><span class="info-label">VIN:</span><span class="info-value">${c.vin || '-'}</span></div>
                 ${settings.showType ? `<div class="info-row"><span class="info-label"><i class="fas fa-truck"></i> Тип ТС:</span><span class="info-value">${c.vehicle_type || '-'}</span></div>` : ''}
                 ${settings.showYear ? `<div class="info-row"><span class="info-label"><i class="fas fa-calendar"></i> Год выпуска:</span><span class="info-value">${c.year || '-'}</span></div>` : ''}
                 ${settings.showSeals ? `<div class="info-row"><span class="info-label"><i class="fas fa-battery-full"></i> Пломбы АКБ:</span><span class="info-value">${c.battery_seals || '-'}</span></div>` : ''}
@@ -367,8 +372,17 @@
             const eq = car.equipment || [];
             return `
                 <div class="form-group"><label><i class="fas fa-id-card"></i> Госномер:</label><input type="text" id="editLicensePlate" value="${car.license_plate || ''}"></div>
-                <div class="form-group"><label><i class="fas fa-barcode"></i> VIN:</label><input type="text" id="editVin" value="${car.vin || ''}"></div>
-                <div class="form-group"><label><i class="fas fa-truck"></i> Тип ТС:</label><select id="editVehicleType"><option value="">— Не выбран —</option>${settings.enabledTypes.map(t => `<option value="${t}" ${car.vehicle_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+                <div class="form-group"><label>VIN:</label><input type="text" id="editVin" value="${car.vin || ''}"></div>
+                <div class="form-group"><label>Тип ТС:</label>
+                    <div class="custom-select" id="vehicleTypeSelect">
+                        <div class="custom-select-value" onclick="toggleVehicleTypeDropdown()">${car.vehicle_type || '— Выбрать тип —'}</div>
+                        <div class="custom-select-options" id="vehicleTypeOptions">
+                            <div class="custom-select-option" onclick="selectVehicleType('')">— Не выбран —</div>
+                            ${settings.enabledTypes.map(t => `<div class="custom-select-option ${car.vehicle_type === t ? 'selected' : ''}" onclick="selectVehicleType('${t}')">${t}</div>`).join('')}
+                        </div>
+                        <input type="hidden" id="editVehicleType" value="${car.vehicle_type || ''}">
+                    </div>
+                </div>
                 <div class="form-group"><label><i class="fas fa-calendar"></i> Год выпуска:</label><input type="number" id="editYear" value="${car.year || ''}" min="1950" max="2030"></div>
                 <div class="form-group"><label><i class="fas fa-battery-full"></i> Пломбы АКБ:</label><input type="text" id="editBatterySeals" value="${car.battery_seals || ''}"></div>
                 <div class="form-group"><label><i class="fas fa-tools"></i> Навесное оборудование:</label>
@@ -381,6 +395,31 @@
                     <button class="btn btn-secondary" onclick="closeModal()"><i class="fas fa-times"></i> Отмена</button>
                 </div>`;
         }
+
+        window.toggleVehicleTypeDropdown = function() {
+            const options = document.getElementById('vehicleTypeOptions');
+            if (options) options.classList.toggle('show');
+        };
+
+        window.selectVehicleType = function(value) {
+            document.getElementById('editVehicleType').value = value;
+            const valueEl = document.querySelector('.custom-select-value');
+            if (valueEl) valueEl.textContent = value || '— Выбрать тип —';
+            const options = document.getElementById('vehicleTypeOptions');
+            if (options) {
+                options.classList.remove('show');
+                options.querySelectorAll('.custom-select-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt.textContent === value);
+                });
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-select')) {
+                const options = document.getElementById('vehicleTypeOptions');
+                if (options) options.classList.remove('show');
+            }
+        });
 
         window.addEquipmentItem = function() {
             const list = document.getElementById('equipmentList');
@@ -496,7 +535,6 @@
         document.getElementById('sortSelect').addEventListener('change', renderCars);
         document.getElementById('carModal').addEventListener('click', (e) => { if (e.target.id === 'carModal') closeModal(); });
 
-        // ===== ЗАПУСК =====
         initTheme();
         await loadSettings();
         applySettings();
