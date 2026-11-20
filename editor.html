@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎨 Редактор дизайна</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #0a0c14; color: #e4e4e7; min-height: 100vh; }
@@ -14,13 +13,13 @@
         .sidebar-header { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #1e2235; }
         .sidebar-header h1 { font-size: 18px; color: #fff; margin-bottom: 4px; }
         .sidebar-header p { font-size: 12px; color: #6b7280; }
-        .tabs { display: flex; gap: 4px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; flex-wrap: wrap; }
         .tab { padding: 8px 12px; background: #1a1f2e; border: none; border-radius: 8px; color: #9ca3af; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
         .tab:hover { background: #2a2f42; }
         .tab.active { background: #6366f1; color: #fff; }
         .section { background: #161a27; border-radius: 12px; padding: 14px; margin-bottom: 12px; display: none; }
         .section.active { display: block; }
-        .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6366f1; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6366f1; margin-bottom: 12px; }
         .field { margin-bottom: 12px; }
         .field label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 6px; font-weight: 500; }
         .field input[type="text"], .field input[type="number"], .field select { width: 100%; padding: 8px 10px; background: #0a0c14; border: 1px solid #1e2235; border-radius: 8px; color: #fff; font-size: 13px; }
@@ -37,9 +36,9 @@
         .checkbox-item:hover { background: #1e2235; }
         .checkbox-item input[type="checkbox"] { accent-color: #6366f1; width: 16px; height: 16px; }
         .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-        .icon-option { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #0a0c14; border: 2px solid #1e2235; border-radius: 8px; cursor: pointer; font-size: 16px; color: #6b7280; transition: all 0.2s; }
-        .icon-option:hover { border-color: #6366f1; color: #fff; }
-        .icon-option.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+        .icon-option { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #0a0c14; border: 2px solid #1e2235; border-radius: 8px; cursor: pointer; font-size: 20px; transition: all 0.2s; }
+        .icon-option:hover { border-color: #6366f1; }
+        .icon-option.active { background: #6366f1; border-color: #6366f1; }
         .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .preset { padding: 8px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 600; color: #fff; text-align: center; border: 2px solid transparent; transition: transform 0.2s; }
         .preset:hover { transform: scale(1.03); }
@@ -54,7 +53,7 @@
         .preview-area { padding: 30px; background: #0a0c14; overflow-y: auto; max-height: 100vh; }
         .preview-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .preview-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; }
-        .theme-toggle { background: #161a27; border: 1px solid #1e2235; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .theme-toggle { background: #161a27; border: 1px solid #1e2235; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
         .preview-container { width: 100%; max-width: 900px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
         .preview-container.light { background: #f8f9fa; color: #212529; }
         .preview-container.dark { background: #1a1d23; color: #f8f9fa; }
@@ -88,14 +87,16 @@
             </div>
 
             <div class="section active" data-section="header">
-                <div class="section-title"><i class="fas fa-heading"></i> Заголовок</div>
+                <div class="section-title">Заголовок</div>
                 <div class="field"><label>Текст заголовка</label><input type="text" id="headerTitle" value="Учёт автомобилей"></div>
                 <div class="field"><label>Подзаголовок</label><input type="text" id="headerSubtitle" value="Рабочий инструмент"></div>
-                <div class="field"><label>Иконка</label><div class="icon-grid" id="iconGrid"></div></div>
+                <div class="field"><label>Иконка</label>
+                    <div class="icon-grid" id="iconGrid"></div>
+                </div>
             </div>
 
             <div class="section" data-section="header">
-                <div class="section-title"><i class="fas fa-palette"></i> Фон шапки</div>
+                <div class="section-title">Фон шапки</div>
                 <div class="field"><label>Готовые пресеты</label><div class="presets" id="presets"></div></div>
                 <div class="field"><label>Тип фона</label><select id="bgType"><option value="gradient">Градиент</option><option value="solid">Сплошной цвет</option></select></div>
                 <div class="field"><label>Цвет 1</label><div class="color-row"><input type="color" id="color1" value="#667eea"><input type="text" id="color1Text" value="#667eea"></div></div>
@@ -104,14 +105,14 @@
             </div>
 
             <div class="section" data-section="header">
-                <div class="section-title"><i class="fas fa-ruler-combined"></i> Размеры</div>
+                <div class="section-title">Размеры</div>
                 <div class="field"><label>Размер шрифта заголовка</label><div class="range-row"><input type="range" id="fontSize" min="16" max="36" value="22"><span class="range-value" id="fontSizeValue">22px</span></div></div>
                 <div class="field"><label>Скругление углов</label><div class="range-row"><input type="range" id="radius" min="0" max="30" value="14"><span class="range-value" id="radiusValue">14px</span></div></div>
                 <div class="field"><label>Внутренние отступы</label><div class="range-row"><input type="range" id="padding" min="10" max="35" value="18"><span class="range-value" id="paddingValue">18px</span></div></div>
             </div>
 
             <div class="section" data-section="cards">
-                <div class="section-title"><i class="fas fa-id-card"></i> Отображение в списке</div>
+                <div class="section-title">Отображение в списке</div>
                 <div class="field"><label>Размер карточек</label><select id="cardSize"><option value="compact">Компактный</option><option value="normal" selected>Обычный</option><option value="large">Большой</option></select></div>
                 <div class="field"><label>Показывать в карточке:</label>
                     <div class="checkbox-group">
@@ -124,32 +125,32 @@
             </div>
 
             <div class="section" data-section="cards">
-                <div class="section-title"><i class="fas fa-sliders-h"></i> Стиль карточек</div>
+                <div class="section-title">Стиль карточек</div>
                 <div class="field"><label>Скругление карточек</label><div class="range-row"><input type="range" id="cardRadius" min="0" max="20" value="10"><span class="range-value" id="cardRadiusValue">10px</span></div></div>
                 <div class="field"><label>Толщина цветной полосы</label><div class="range-row"><input type="range" id="cardBorder" min="0" max="8" value="4"><span class="range-value" id="cardBorderValue">4px</span></div></div>
             </div>
 
             <div class="section" data-section="colors">
-                <div class="section-title"><i class="fas fa-paint-brush"></i> Цветовая схема</div>
+                <div class="section-title">Цветовая схема</div>
                 <div class="field"><label>Акцентный цвет</label><div class="color-row"><input type="color" id="accentColor" value="#0d6efd"><input type="text" id="accentColorText" value="#0d6efd"></div></div>
                 <div class="field"><label>Цвет успеха</label><div class="color-row"><input type="color" id="successColor" value="#198754"><input type="text" id="successColorText" value="#198754"></div></div>
                 <div class="field"><label>Цвет опасности</label><div class="color-row"><input type="color" id="dangerColor" value="#dc3545"><input type="text" id="dangerColorText" value="#dc3545"></div></div>
             </div>
 
             <div class="section" data-section="colors">
-                <div class="section-title"><i class="fas fa-sun"></i> Светлая тема</div>
+                <div class="section-title">Светлая тема</div>
                 <div class="field"><label>Фон приложения</label><div class="color-row"><input type="color" id="lightBg" value="#f8f9fa"><input type="text" id="lightBgText" value="#f8f9fa"></div></div>
                 <div class="field"><label>Фон карточек</label><div class="color-row"><input type="color" id="lightCard" value="#ffffff"><input type="text" id="lightCardText" value="#ffffff"></div></div>
             </div>
 
             <div class="section" data-section="colors">
-                <div class="section-title"><i class="fas fa-moon"></i> Тёмная тема</div>
+                <div class="section-title">Тёмная тема</div>
                 <div class="field"><label>Фон приложения</label><div class="color-row"><input type="color" id="darkBg" value="#1a1d23"><input type="text" id="darkBgText" value="#1a1d23"></div></div>
                 <div class="field"><label>Фон карточек</label><div class="color-row"><input type="color" id="darkCard" value="#2c3038"><input type="text" id="darkCardText" value="#2c3038"></div></div>
             </div>
 
             <div class="section" data-section="filters">
-                <div class="section-title"><i class="fas fa-filter"></i> Типы ТС в фильтре</div>
+                <div class="section-title">Типы ТС в фильтре</div>
                 <p style="font-size:11px;color:#6b7280;margin-bottom:10px;">Отключи неиспользуемые типы</p>
                 <div class="checkbox-group" id="typeFilters"></div>
                 <div style="margin-top:10px;display:flex;gap:6px;">
@@ -159,29 +160,23 @@
             </div>
 
             <div class="section" data-section="brand">
-                <div class="section-title"><i class="fas fa-star"></i> Брендирование</div>
+                <div class="section-title">Брендирование</div>
                 <div class="field"><label>Название вкладки браузера</label><input type="text" id="pageTitle" value="Учёт автомобилей"></div>
                 <div class="field"><label>Emoji-иконка вкладки</label><input type="text" id="pageFavicon" value="🚗" maxlength="2"></div>
             </div>
 
             <div class="actions">
-                <button class="btn btn-success" onclick="downloadSettings()">
-                    <i class="fas fa-download"></i> Скачать settings.json
-                </button>
-                <button class="btn btn-secondary" onclick="document.getElementById('importSettings').click()">
-                    <i class="fas fa-upload"></i> Загрузить settings.json
-                </button>
+                <button class="btn btn-success" onclick="downloadSettings()">⬇️ Скачать settings.json</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importSettings').click()">⬆️ Загрузить settings.json</button>
                 <input type="file" id="importSettings" accept=".json" style="display:none" onchange="loadSettingsFile(event)">
-                <button class="btn btn-warning" onclick="resetAll()">
-                    <i class="fas fa-undo"></i> Сбросить
-                </button>
+                <button class="btn btn-warning" onclick="resetAll()">🔄 Сбросить</button>
             </div>
         </div>
 
         <div class="preview-area">
             <div class="preview-toolbar">
                 <div class="preview-label">Живой предпросмотр</div>
-                <button class="theme-toggle" onclick="togglePreviewTheme()"><i class="fas fa-adjust"></i> <span id="previewThemeLabel">Светлая тема</span></button>
+                <button class="theme-toggle" onclick="togglePreviewTheme()">🌓 <span id="previewThemeLabel">Светлая тема</span></button>
             </div>
             <div class="preview-container light" id="previewContainer"></div>
         </div>
@@ -190,7 +185,8 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        const ICONS = ['fa-car','fa-truck','fa-truck-pickup','fa-truck-monster','fa-snowplow','fa-tractor','fa-bus','fa-van-shuttle','fa-truck-moving','fa-taxi','fa-shuttle-van','fa-ambulance'];
+        const ICONS = ['🚗','🚛','🛻','🚜','🚒','🚌','🚐','🚑','🚚','🚕','🚎','🏎️'];
+        const ICON_NAMES = ['fa-car','fa-truck','fa-truck-pickup','fa-tractor','fa-snowplow','fa-bus','fa-van-shuttle','fa-ambulance','fa-truck-moving','fa-taxi','fa-shuttle-van','fa-car-side'];
         const PRESETS = [
             { name: '🌊 Синий', c1: '#667eea', c2: '#764ba2' },
             { name: '🌅 Закат', c1: '#f093fb', c2: '#f5576c' },
@@ -243,25 +239,24 @@
             { license_plate: 'К012ЛМ789', vin: 'XTA211260Y5097732', vehicle_type: 'Экскаваторы', year: 2019 },
         ];
 
-        function safeGet(id) {
-            const el = document.getElementById(id);
-            if (!el) console.warn('Элемент не найден:', id);
-            return el;
+        function getIconEmoji(faName) {
+            const idx = ICON_NAMES.indexOf(faName);
+            return idx >= 0 ? ICONS[idx] : '🚗';
         }
 
         function init() {
+            console.log('Старт редактора');
             try {
-                console.log('Инициализация редактора...');
                 initTabs();
                 initIcons();
                 initPresets();
                 initTypeFilters();
                 bindEvents();
                 updatePreview();
-                console.log('Редактор инициализирован успешно');
+                console.log('Редактор готов');
             } catch(e) {
-                console.error('Ошибка инициализации:', e);
-                alert('Ошибка загрузки редактора: ' + e.message + '\n\nОткрой консоль браузера (F12) для деталей.');
+                console.error('Ошибка:', e);
+                alert('Ошибка: ' + e.message);
             }
         }
 
@@ -272,50 +267,48 @@
                     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                     this.classList.add('active');
                     const tabName = this.dataset.tab;
-                    document.querySelectorAll(`.section[data-section="${tabName}"]`).forEach(s => s.classList.add('active'));
+                    document.querySelectorAll('.section[data-section="' + tabName + '"]').forEach(s => s.classList.add('active'));
                 });
             });
         }
 
         function initIcons() {
-            const grid = safeGet('iconGrid');
-            if (!grid) return;
-            grid.innerHTML = ICONS.map(icon =>
-                `<div class="icon-option ${icon === settings.icon ? 'active' : ''}" onclick="selectIcon('${icon}')"><i class="fas ${icon}"></i></div>`
-            ).join('');
+            const grid = document.getElementById('iconGrid');
+            grid.innerHTML = ICONS.map((icon, i) => {
+                const faName = ICON_NAMES[i];
+                return '<div class="icon-option ' + (faName === settings.icon ? 'active' : '') + '" onclick="selectIcon(\'' + faName + '\')">' + icon + '</div>';
+            }).join('');
         }
 
         function initPresets() {
-            const container = safeGet('presets');
-            if (!container) return;
-            container.innerHTML = PRESETS.map((p, i) =>
-                `<div class="preset" style="background:linear-gradient(135deg,${p.c1},${p.c2})" onclick="applyPreset(${i})">${p.name}</div>`
-            ).join('');
+            const container = document.getElementById('presets');
+            container.innerHTML = PRESETS.map((p, i) => {
+                return '<div class="preset" style="background:linear-gradient(135deg,' + p.c1 + ',' + p.c2 + ')" onclick="applyPreset(' + i + ')">' + p.name + '</div>';
+            }).join('');
         }
 
         function initTypeFilters() {
-            const container = safeGet('typeFilters');
-            if (!container) return;
-            container.innerHTML = ALL_TYPES.map(type =>
-                `<label class="checkbox-item"><input type="checkbox" value="${type}" ${settings.enabledTypes.includes(type) ? 'checked' : ''}>${type}</label>`
-            ).join('');
+            const container = document.getElementById('typeFilters');
+            container.innerHTML = ALL_TYPES.map(type => {
+                const checked = settings.enabledTypes.includes(type) ? 'checked' : '';
+                return '<label class="checkbox-item"><input type="checkbox" value="' + type + '" ' + checked + '>' + type + '</label>';
+            }).join('');
         }
 
         function bindEvents() {
             const ids = ['headerTitle','headerSubtitle','bgType','color1','color1Text','color2','color2Text','angle','fontSize','radius','padding','cardSize','cardRadius','cardBorder','accentColor','accentColorText','successColor','successColorText','dangerColor','dangerColorText','lightBg','lightBgText','lightCard','lightCardText','darkBg','darkBgText','darkCard','darkCardText','pageTitle','pageFavicon'];
             ids.forEach(id => {
-                const el = safeGet(id);
+                const el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('input', handleInput);
                     el.addEventListener('change', handleInput);
                 }
             });
             ['showVin','showType','showYear','showSeals'].forEach(id => {
-                const el = safeGet(id);
+                const el = document.getElementById(id);
                 if (el) el.addEventListener('change', handleInput);
             });
-            const typeCheckboxes = document.querySelectorAll('#typeFilters input');
-            typeCheckboxes.forEach(cb => cb.addEventListener('change', handleTypeFilterChange));
+            document.querySelectorAll('#typeFilters input').forEach(cb => cb.addEventListener('change', handleTypeFilterChange));
         }
 
         function handleInput(e) {
@@ -324,23 +317,23 @@
             if (id.endsWith('Text')) {
                 const colorId = id.replace('Text','');
                 if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-                    const colorEl = safeGet(colorId);
+                    const colorEl = document.getElementById(colorId);
                     if (colorEl) colorEl.value = val;
                     settings[colorId] = val;
                 }
             } else {
-                const textEl = safeGet(id + 'Text');
+                const textEl = document.getElementById(id + 'Text');
                 if (textEl) textEl.value = val;
                 settings[id] = ['fontSize','radius','padding','angle','cardRadius','cardBorder'].includes(id) ? parseInt(val) : val;
             }
-            const valueEl = safeGet(id + 'Value');
+            const valueEl = document.getElementById(id + 'Value');
             if (valueEl) {
                 if (id === 'angle') valueEl.textContent = val + '°';
                 else valueEl.textContent = val + 'px';
             }
             if (id === 'bgType') {
-                const color2Field = safeGet('color2Field');
-                const angleField = safeGet('angleField');
+                const color2Field = document.getElementById('color2Field');
+                const angleField = document.getElementById('angleField');
                 if (color2Field) color2Field.style.display = val === 'gradient' ? 'block' : 'none';
                 if (angleField) angleField.style.display = val === 'gradient' ? 'block' : 'none';
             }
@@ -352,8 +345,8 @@
             updatePreview();
         }
 
-        window.selectIcon = function(icon) {
-            settings.icon = icon;
+        window.selectIcon = function(faName) {
+            settings.icon = faName;
             initIcons();
             updatePreview();
         };
@@ -363,13 +356,13 @@
             settings.color1 = p.c1;
             settings.color2 = p.c2;
             settings.bgType = 'gradient';
-            const c1 = safeGet('color1');
-            const c1Text = safeGet('color1Text');
-            const c2 = safeGet('color2');
-            const c2Text = safeGet('color2Text');
-            const bgType = safeGet('bgType');
-            const color2Field = safeGet('color2Field');
-            const angleField = safeGet('angleField');
+            const c1 = document.getElementById('color1');
+            const c1Text = document.getElementById('color1Text');
+            const c2 = document.getElementById('color2');
+            const c2Text = document.getElementById('color2Text');
+            const bgType = document.getElementById('bgType');
+            const color2Field = document.getElementById('color2Field');
+            const angleField = document.getElementById('angleField');
             if (c1) c1.value = p.c1;
             if (c1Text) c1Text.value = p.c1;
             if (c2) c2.value = p.c2;
@@ -387,18 +380,18 @@
 
         window.togglePreviewTheme = function() {
             previewTheme = previewTheme === 'light' ? 'dark' : 'light';
-            const container = safeGet('previewContainer');
-            const label = safeGet('previewThemeLabel');
+            const container = document.getElementById('previewContainer');
+            const label = document.getElementById('previewThemeLabel');
             if (container) container.className = 'preview-container ' + previewTheme;
             if (label) label.textContent = previewTheme === 'light' ? 'Светлая тема' : 'Тёмная тема';
             updatePreview();
         };
 
         function updatePreview() {
-            const container = safeGet('previewContainer');
+            const container = document.getElementById('previewContainer');
             if (!container) return;
             const isLight = previewTheme === 'light';
-            const bg = settings.bgType === 'gradient' ? `linear-gradient(${settings.angle}deg, ${settings.color1} 0%, ${settings.color2} 100%)` : settings.color1;
+            const bg = settings.bgType === 'gradient' ? 'linear-gradient(' + settings.angle + 'deg, ' + settings.color1 + ' 0%, ' + settings.color2 + ' 100%)' : settings.color1;
             const cardPadding = settings.cardSize === 'compact' ? '10px 12px' : settings.cardSize === 'large' ? '18px 20px' : '14px 16px';
             const cardFontSize = settings.cardSize === 'compact' ? '14px' : settings.cardSize === 'large' ? '18px' : '16px';
             const textColor = isLight ? '#212529' : '#f8f9fa';
@@ -410,5 +403,111 @@
             container.style.color = textColor;
 
             const visibleCars = TEST_CARS.filter(c => settings.enabledTypes.includes(c.vehicle_type));
+            const iconEmoji = getIconEmoji(settings.icon);
 
-     
+            container.innerHTML = '<div class="pv-header" style="background:' + bg + ';border-radius:' + settings.radius + 'px;padding:' + settings.padding + 'px 18px;margin:15px;">' +
+                '<div><div class="pv-title" style="font-size:' + settings.fontSize + 'px;">' + iconEmoji + ' <span>' + settings.headerTitle + '</span></div>' +
+                (settings.headerSubtitle ? '<div class="pv-subtitle">' + settings.headerSubtitle + '</div>' : '') +
+                '</div><div style="color:white;font-size:18px;">⚙️</div></div>' +
+                '<div class="pv-stats" style="background:' + cardBg + ';color:' + textSec + ';margin:0 15px;">' +
+                '<span>Всего машин: <strong style="color:' + settings.accentColor + ';">' + visibleCars.length + '</strong></span></div>' +
+                '<div style="position:relative;margin:12px 15px 0;">' +
+                '<span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:' + textSec + ';">🔍</span>' +
+                '<input class="pv-search" placeholder="Поиск..." style="background:' + cardBg + ';border-color:' + (isLight ? '#dee2e6' : '#495057') + ';color:' + textColor + ';">' +
+                '</div><div style="margin:12px 15px 0;">' +
+                visibleCars.map(car => '<div class="pv-car-card" style="background:' + cardBg + ';border-radius:' + settings.cardRadius + 'px;border-left:' + settings.cardBorder + 'px solid ' + settings.accentColor + ';padding:' + cardPadding + ';">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+                    '<div class="pv-car-number" style="color:' + settings.accentColor + ';font-size:' + cardFontSize + ';">🚗 ' + car.license_plate + '</div>' +
+                    (settings.showType ? '<span class="pv-type-badge" style="background:' + (isLight ? '#f0f0f0' : '#1e2235') + ';color:' + textSec + ';">' + car.vehicle_type + '</span>' : '') +
+                    '</div><div class="pv-car-meta" style="color:' + textSec + ';">' +
+                    (settings.showVin ? '<span>VIN: ' + car.vin + '</span>' : '') +
+                    (settings.showYear ? '<span>' + car.year + ' г.</span>' : '') +
+                    '</div></div>').join('') +
+                '</div>';
+        }
+
+        window.downloadSettings = function() {
+            const data = JSON.stringify(settings, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'settings.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('✓ settings.json скачан');
+        };
+
+        window.loadSettingsFile = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const loaded = JSON.parse(e.target.result);
+                    settings = { ...DEFAULT_SETTINGS, ...loaded };
+                    if (!settings.enabledTypes || settings.enabledTypes.length === 0) {
+                        settings.enabledTypes = DEFAULT_SETTINGS.enabledTypes;
+                    }
+                    syncUIFromState();
+                    initIcons();
+                    initTypeFilters();
+                    updatePreview();
+                    showToast('✓ Настройки загружены');
+                } catch(err) {
+                    alert('Ошибка: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        };
+
+        window.resetAll = function() {
+            if (confirm('Сбросить все настройки?')) {
+                settings = { ...DEFAULT_SETTINGS };
+                syncUIFromState();
+                initIcons();
+                initTypeFilters();
+                updatePreview();
+                showToast('✓ Сброшено');
+            }
+        };
+
+        function syncUIFromState() {
+            Object.keys(settings).forEach(key => {
+                const el = document.getElementById(key);
+                if (!el) return;
+                if (el.type === 'checkbox') el.checked = settings[key];
+                else el.value = settings[key];
+                const textEl = document.getElementById(key + 'Text');
+                if (textEl) textEl.value = settings[key];
+                const valueEl = document.getElementById(key + 'Value');
+                if (valueEl) {
+                    if (key === 'angle') valueEl.textContent = settings[key] + '°';
+                    else valueEl.textContent = settings[key] + 'px';
+                }
+            });
+            const color2Field = document.getElementById('color2Field');
+            const angleField = document.getElementById('angleField');
+            if (color2Field) color2Field.style.display = settings.bgType === 'gradient' ? 'block' : 'none';
+            if (angleField) angleField.style.display = settings.bgType === 'gradient' ? 'block' : 'none';
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
