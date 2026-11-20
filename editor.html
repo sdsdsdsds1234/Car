@@ -1,1 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Редактор дизайна</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #0a0c14; color: #e4e4e7; min-height: 100vh; }
+        .app { display: grid; grid-template-columns: 400px 1fr; min-height: 100vh; }
+        @media (max-width: 1000px) { .app { grid-template-columns: 1fr; } }
+        .sidebar { background: #11141d; border-right: 1px solid #1e2235; padding: 20px; overflow-y: auto; max-height: 100vh; }
+        .sidebar-header { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #1e2235; }
+        .sidebar-header h1 { font-size: 18px; color: #fff; margin-bottom: 4px; }
+        .sidebar-header p { font-size: 12px; color: #6b7280; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+        .tab { padding: 8px 12px; background: #1a1f2e; border: none; border-radius: 8px; color: #9ca3af; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .tab.active { background: #6366f1; color: #fff; }
+        .section { background: #161a27; border-radius: 12px; padding: 14px; margin-bottom: 12px; display: none; }
+        .section.active { display: block; }
+        .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6366f1; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .field { margin-bottom: 12px; }
+        .field label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 6px; font-weight: 500; }
+        .field input[type="text"], .field input[type="number"], .field select { width: 100%; padding: 8px 10px; background: #0a0c14; border: 1px solid #1e2235; border-radius: 8px; color: #fff; font-size: 13px; }
+        .field input:focus, .field select:focus { outline: none; border-color: #6366f1; }
+        .field input[type="range"] { width: 100%; accent-color: #6366f1; }
+        .range-row { display: flex; align-items: center; gap: 10px; }
+        .range-row input[type="range"] { flex: 1; }
+        .range-value { background: #0a0c14; padding: 3px 8px; border-radius: 4px; font-size: 11px; color: #6366f1; font-family: monospace; min-width: 40px; text-align: center; }
+        .color-row { display: flex; gap: 6px; align-items: center; }
+        .color-row input[type="color"] { width: 40px; height: 34px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
+        .color-row input[type="text"] { flex: 1; font-family: monospace; font-size: 12px; }
+        .checkbox-group { display: flex; flex-direction: column; gap: 6px; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #0a0c14; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .checkbox-item:hover { background: #1e2235; }
+        .checkbox-item input[type="checkbox"] { accent-color: #6366f1; width: 16px; height: 16px; }
+        .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+        .icon-option { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #0a0c14; border: 2px solid #1e2235; border-radius: 8px; cursor: pointer; font-size: 16px; color: #6b7280; }
+        .icon-option:hover { border-color: #6366f1; color: #fff; }
+        .icon-option.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+        .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .preset { padding: 8px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 600; color: #fff; text-align: center; border: 2px solid transparent; }
+        .preset:hover { transform: scale(1.03); }
+        .preset.active { border-color: #fff; }
+        .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #1e2235; }
+        .btn { padding: 11px 14px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: #6366f1; color: #fff; }
+        .btn-secondary { background: #1e2235; color: #fff; }
+        .btn-success { background: #10b981; color: #fff; }
+        .btn-warning { background: #f59e0b; color: #000; }
+        .preview-area { padding: 30px; background: #0a0c14; overflow-y: auto; max-height: 100vh; }
+        .preview-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .preview-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; }
+        .theme-toggle { background: #161a27; border: 1px solid #1e2235; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .preview-container { width: 100%; max-width: 900px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .preview-container.light { background: #f8f9fa; color: #212529; }
+        .preview-container.dark { background: #1a1d23; color: #f8f9fa; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #10b981; color: #fff; padding: 12px 18px; border-radius: 10px; box-shadow: 0 10px 30px rgba(16,185,129,0.4); transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 1000; font-size: 13px; font-weight: 600; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .info-banner { background: #1e2235; border-left: 4px solid #6366f1; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 12px; color: #9ca3af; line-height: 1.5; }
+        .info-banner strong { color: #fff; }
+        .pv-header { display: flex; justify-content: space-between; align-items: center; }
+        .pv-title { color: #fff; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .pv-subtitle { color: rgba(255,255,255,0.85); font-size: 12px; margin-top: 3px; }
+        .pv-stats { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin: 12px 0; display: flex; gap: 16px; flex-wrap: wrap; }
+        .pv-search { width: 100%; padding: 12px 14px 12px 38px; border-radius: 10px; border: 2px solid; font-size: 14px; margin-bottom: 12px; }
+        .pv-car-card { padding: 14px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid; cursor: pointer; }
+        .pv-car-number { font-weight: 700; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .pv-car-meta { font-size: 12px; opacity: 0.7; display: flex; gap: 12px; flex-wrap: wrap; }
+        .pv-type-badge { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🎨 Редактор дизайна</h1>
+                <p>Меняет только settings.json — логика приложения не затрагивается</p>
+            </div>
 
+            <div class="info-banner">
+                <strong>Как это работает:</strong><br>
+                1. Настрой дизайн здесь<br>
+                2. Нажми «Скачать settings.json»<br>
+                3. Загрузи файл в репозиторий GitHub (заменив старый)<br>
+                4. Через 30 секунд дизайн обновится на сайте
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="header">🎨 Шапка</button>
+                <button class="tab" data-tab="cards">🚗 Карточки</button>
+                <button class="tab" data-tab="colors">🌈 Цвета</button>
+                <button class="tab" data-tab="filters">🔽 Фильтры</button>
+                <button class="tab" data-tab="brand">⭐ Бренд</button>
+            </div>
+
+            <div class="section active" data-section="header">
+                <div class="section-title"><i class="fas fa-heading"></i> Заголовок</div>
+                <div class="field"><label>Текст заголовка</label><input type="text" id="headerTitle"></div>
+                <div class="field"><label>Подзаголовок</label><input type="text" id="headerSubtitle"></div>
+                <div class="field"><label>Иконка</label><div class="icon-grid" id="iconGrid"></div></div>
+            </div>
+
+            <div class="section" data-section="header">
+                <div class="section-title"><i class="fas fa-palette"></i> Фон шапки</div>
+                <div class="field"><label>Готовые пресеты</label><div class="presets" id="presets"></div></div>
+                <div class="field"><label>Тип фона</label><select id="bgType"><option value="gradient">Градиент</option><option value="solid">Сплошной цвет</option></select></div>
+                <div class="field"><label>Цвет 1</label><div class="color-row"><input type="color" id="color1"><input type="text" id="color1Text"></div></div>
+                <div class="field" id="color2Field"><label>Цвет 2</label><div class="color-row"><input type="color" id="color2"><input type="text" id="color2Text"></div></div>
+                <div class="field" id="angleField"><label>Угол градиента</label><div class="range-row"><input type="range" id="angle" min="0" max="360"><span class="range-value" id="angleValue"></span></div></div>
+            </div>
+
+            <div class="section" data-section="header">
+                <div class="section-title"><i class="fas fa-ruler-combined"></i> Размеры</div>
+                <div class="field"><label>Размер шрифта заголовка</label><div class="range-row"><input type="range" id="fontSize" min="16" max="36"><span class="range-value" id="fontSizeValue"></span></div></div>
+                <div class="field"><label>Скругление углов</label><div class="range-row"><input type="range" id="radius" min="0" max="30"><span class="range-value" id="radiusValue"></span></div></div>
+                <div class="field"><label>Внутренние отступы</label><div class="range-row"><input type="range" id="padding" min="10" max="35"><span class="range-value" id="paddingValue"></span></div></div>
+            </div>
+
+            <div class="section" data-section="cards">
+                <div class="section-title"><i class="fas fa-id-card"></i> Отображение в списке</div>
+                <div class="field"><label>Размер карточек</label><select id="cardSize"><option value="compact">Компактный</option><option value="normal">Обычный</option><option value="large">Большой</option></select></div>
+                <div class="field"><label>Показывать в карточке:</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" id="showVin"> VIN номер</label>
+                        <label class="checkbox-item"><input type="checkbox" id="showType"> Тип ТС</label>
+                        <label class="checkbox-item"><input type="checkbox" id="showYear"> Год выпуска</label>
+                        <label class="checkbox-item"><input type="checkbox" id="showSeals"> Пломбы АКБ</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" data-section="cards">
+                <div class="section-title"><i class="fas fa-sliders-h"></i> Стиль карточек</div>
+                <div class="field"><label>Скругление карточек</label><div class="range-row"><input type="range" id="cardRadius" min="0" max="20"><span class="range-value" id="cardRadiusValue"></span></div></div>
+                <div class="field"><label>Толщина цветной полосы</label><div class="range-row"><input type="range" id="cardBorder" min="0" max="8"><span class="range-value" id="cardBorderValue"></span></div></div>
+            </div>
+
+            <div class="section" data-section="colors">
+                <div class="section-title"><i class="fas fa-paint-brush"></i> Цветовая схема</div>
+                <div class="field"><label>Акцентный цвет</label><div class="color-row"><input type="color" id="accentColor"><input type="text" id="accentColorText"></div></div>
+                <div class="field"><label>Цвет успеха</label><div class="color-row"><input type="color" id="successColor"><input type="text" id="successColorText"></div></div>
+                <div class="field"><label>Цвет опасности</label><div class="color-row"><input type="color" id="dangerColor"><input type="text" id="dangerColorText"></div></div>
+            </div>
+
+            <div class="section" data-section="colors">
+                <div class="section-title"><i class="fas fa-sun"></i> Светлая тема</div>
+                <div class="field"><label>Фон приложения</label><div class="color-row"><input type="color" id="lightBg"><input type="text" id="lightBgText"></div></div>
+                <div class="field"><label>Фон карточек</label><div class="color-row"><input type="color" id="lightCard"><input type="text" id="lightCardText"></div></div>
+            </div>
+
+            <div class="section" data-section="colors">
+                <div class="section-title"><i class="fas fa-moon"></i> Тёмная тема</div>
+                <div class="field"><label>Фон приложения</label><div class="color-row"><input type="color" id="darkBg"><input type="text" id="darkBgText"></div></div>
+                <div class="field"><label>Фон карточек</label><div class="color-row"><input type="color" id="darkCard"><input type="text" id="darkCardText"></div></div>
+            </div>
+
+            <div class="section" data-section="filters">
+                <div class="section-title"><i class="fas fa-filter"></i> Типы ТС в фильтре</div>
+                <p style="font-size:11px;color:#6b7280;margin-bottom:10px;">Отключи неиспользуемые типы</p>
+                <div class="checkbox-group" id="typeFilters"></div>
+                <div style="margin-top:10px;display:flex;gap:6px;">
+                    <button class="btn btn-secondary" style="flex:1;font-size:11px;padding:8px;" onclick="toggleAllTypes(true)">Включить все</button>
+                    <button class="btn btn-secondary" style="flex:1;font-size:11px;padding:8px;" onclick="toggleAllTypes(false)">Выключить все</button>
+                </div>
+            </div>
+
+            <div class="section" data-section="brand">
+                <div class="section-title"><i class="fas fa-star"></i> Брендирование</div>
+                <div class="field"><label>Название вкладки браузера</label><input type="text" id="pageTitle"></div>
+                <div class="field"><label>Emoji-иконка вкладки</label><input type="text" id="pageFavicon" maxlength="2"></div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-success" onclick="downloadSettings()">
+                    <i class="fas fa-download"></i> Скачать settings.json
+                </button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importSettings').click()">
+                    <i class="fas fa-upload"></i> Загрузить settings.json
+                </button>
+                <input type="file" id="importSettings" accept=".json" style="display:none" onchange="loadSettingsFile(event)">
+                <button class="btn btn-warning" onclick="resetAll()">
+                    <i class="fas fa-undo"></i> Сбросить к defaults
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-area">
+            <div class="preview-toolbar">
+                <div class="preview-label">Живой предпросмотр</div>
+                <button class="theme-toggle" onclick="togglePreviewTheme()"><i class="fas fa-adjust"></i> <span id="previewThemeLabel">Светлая тема</span></button>
+            </div>
+            <div class="preview-container light" id="previewContainer"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const ICONS = ['fa-car','fa-truck','fa-truck-pickup','fa-truck-monster','fa-snowplow','fa-tractor','fa-bus','fa-van-shuttle','fa-truck-moving','fa-taxi','fa-shuttle-van','fa-ambulance'];
+        const PRESETS = [
+            { name: '🌊 Синий', c1: '#667eea', c2: '#764ba2' },
+            { name: '🌅 Закат', c1: '#f093fb', c2: '#f5576c' },
+            { name: '🌲 Лес', c1: '#11998e', c2: '#38ef7d' },
+            { name: '🔥 Огонь', c1: '#ff512f', c2: '#dd2476' },
+            { name: '🌙 Ночь', c1: '#232526', c2: '#414345' },
+            { name: '⚡ Электрик', c1: '#00c6ff', c2: '#0072ff' },
+            { name: '🍓 Ягода', c1: '#fc466b', c2: '#3f5efb' },
+            { name: '🌾 Песок', c1: '#ee9ca7', c2: '#ffdde1' },
+        ];
+        const ALL_TYPES = ['Бродвеи','Бульдозеры','Вилочные','ГАЗ','Грейдеры','Экскаваторы','Катки','КДМ','Краны','Легковые','Литой асфальт','Ливнёвка','Мини-погрузчики','Мусоровозы','ПМ','Самосвалы','СНП','Тягачи','Тракторы','Тротуарная','Фанты','Фронтальные погрузчики','Фрезы'];
+
+        const DEFAULT_SETTINGS = {
+            headerTitle: "Учёт автомобилей",
+            headerSubtitle: "Рабочий инструмент",
+            icon: "fa-car",
+            bgType: "gradient",
+            color1: "#667eea",
+            color2: "#764ba2",
+            angle: 135,
+            fontSize: 22,
+            radius: 14,
+            padding: 18,
+            cardSize: "normal",
+            showVin: true,
+            showType: true,
+            showYear: true,
+            showSeals: false,
+            cardRadius: 10,
+            cardBorder: 4,
+            accentColor: "#0d6efd",
+            successColor: "#198754",
+            dangerColor: "#dc3545",
+            lightBg: "#f8f9fa",
+            lightCard: "#ffffff",
+            darkBg: "#1a1d23",
+            darkCard: "#2c3038",
+            enabledTypes: [...ALL_TYPES],
+            pageTitle: "Учёт автомобилей",
+            pageFavicon: "🚗"
+        };
+
+        let settings = { ...DEFAULT_SETTINGS };
+        let previewTheme = 'light';
+
+        const TEST_CARS = [
+            { license_plate: 'А123БВ777', vin: 'XTA210930Y2764409', vehicle_type: 'КДМ', year: 2020 },
+            { license_plate: 'В456ГД123', vin: 'XTA211040Y3875510', vehicle_type: 'Самосвалы', year: 2018 },
+            { license_plate: 'Е789ЖЗ456', vin: 'XTA211150Y4986621', vehicle_type: 'Тракторы', year: 2022 },
+            { license_plate: 'К012ЛМ789', vin: 'XTA211260Y5097732', vehicle_type: 'Экскаваторы', year: 2019 },
+        ];
+
+        async function init() {
+            // Пытаемся загрузить актуальный settings.json с сайта
+            try {
+                const res = await fetch('settings.json?t=' + Date.now());
+                if (res.ok) {
+                    const loaded = await res.json();
+                    settings = { ...DEFAULT_SETTINGS, ...loaded };
+                    showToast('✓ Загружены актуальные настройки с сайта');
+                }
+            } catch(e) {
+                console.log('Использую настройки по умолчанию');
+            }
+
+            initTabs();
+            initIcons();
+            initPresets();
+            initTypeFilters();
+            syncUIFromState();
+            bindEvents();
+            updatePreview();
+        }
+
+        function initTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.querySelectorAll(`.section[data-section="${tab.dataset.tab}"]`).forEach(s => s.classList.add('active'));
+                });
+            });
+        }
+
+        function initIcons() {
+            document.getElementById('iconGrid').innerHTML = ICONS.map(icon =>
+                `<div class="icon-option ${icon === settings.icon ? 'active' : ''}" onclick="selectIcon('${icon}')"><i class="fas ${icon}"></i></div>`
+            ).join('');
+        }
+
+        function initPresets() {
+            document.getElementById('presets').innerHTML = PRESETS.map((p, i) =>
+                `<div class="preset" style="background:linear-gradient(135deg,${p.c1},${p.c2})" onclick="applyPreset(${i})">${p.name}</div>`
+            ).join('');
+        }
+
+        function initTypeFilters() {
+            document.getElementById('typeFilters').innerHTML = ALL_TYPES.map(type =>
+                `<label class="checkbox-item"><input type="checkbox" value="${type}" ${settings.enabledTypes.includes(type) ? 'checked' : ''}>${type}</label>`
+            ).join('');
+        }
+
+        function bindEvents() {
+            const ids = ['headerTitle','headerSubtitle','bgType','color1','color1Text','color2','color2Text','angle','fontSize','radius','padding','cardSize','cardRadius','cardBorder','accentColor','accentColorText','successColor','successColorText','dangerColor','dangerColorText','lightBg','lightBgText','lightCard','lightCardText','darkBg','darkBgText','darkCard','darkCardText','pageTitle','pageFavicon'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', handleInput);
+                    el.addEventListener('change', handleInput);
+                }
+            });
+            ['showVin','showType','showYear','showSeals'].forEach(id => {
+                document.getElementById(id).addEventListener('change', handleInput);
+            });
+            document.querySelectorAll('#typeFilters input').forEach(cb => cb.addEventListener('change', handleTypeFilterChange));
+        }
+
+        function handleInput(e) {
+            const id = e.target.id;
+            const val = e.target.value;
+            if (id.endsWith('Text')) {
+                const colorId = id.replace('Text','');
+                if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                    document.getElementById(colorId).value = val;
+                    settings[colorId] = val;
+                }
+            } else if (document.getElementById(id + 'Text')) {
+                document.getElementById(id + 'Text').value = val;
+                settings[id] = val;
+            } else {
+                settings[id] = ['fontSize','radius','padding','angle','cardRadius','cardBorder'].includes(id) ? parseInt(val) : val;
+            }
+            const valueEl = document.getElementById(id + 'Value');
+            if (valueEl) {
+                if (id === 'angle') valueEl.textContent = val + '°';
+                else valueEl.textContent = val + 'px';
+            }
+            if (id === 'bgType') {
+                document.getElementById('color2Field').style.display = val === 'gradient' ? 'block' : 'none';
+                document.getElementById('angleField').style.display = val === 'gradient' ? 'block' : 'none';
+            }
+            updatePreview();
+        }
+
+        function handleTypeFilterChange() {
+            settings.enabledTypes = Array.from(document.querySelectorAll('#typeFilters input:checked')).map(cb => cb.value);
+            updatePreview();
+        }
+
+        window.selectIcon = function(icon) {
+            settings.icon = icon;
+            initIcons();
+            updatePreview();
+        };
+
+        window.applyPreset = function(index) {
+            const p = PRESETS[index];
+            settings.color1 = p.c1;
+            settings.color2 = p.c2;
+            settings.bgType = 'gradient';
+            document.getElementById('color1').value = p.c1;
+            document.getElementById('color1Text').value = p.c1;
+            document.getElementById('color2').value = p.c2;
+            document.getElementById('color2Text').value = p.c2;
+            document.getElementById('bgType').value = 'gradient';
+            document.getElementById('color2Field').style.display = 'block';
+            document.getElementById('angleField').style.display = 'block';
+            updatePreview();
+        };
+
+        window.toggleAllTypes = function(enable) {
+            document.querySelectorAll('#typeFilters input').forEach(cb => cb.checked = enable);
+            handleTypeFilterChange();
+        };
+
+        window.togglePreviewTheme = function() {
+            previewTheme = previewTheme === 'light' ? 'dark' : 'light';
+            document.getElementById('previewContainer').className = 'preview-container ' + previewTheme;
+            document.getElementById('previewThemeLabel').textContent = previewTheme === 'light' ? 'Светлая тема' : 'Тёмная тема';
+            updatePreview();
+        };
+
+        function syncUIFromState() {
+            Object.keys(settings).forEach(key => {
+                const el = document.getElementById(key);
+                if (!el) return;
+                if (el.type === 'checkbox') el.checked = settings[key];
+                else el.value = settings[key];
+                const textEl = document.getElementById(key + 'Text');
+                if (textEl) textEl.value = settings[key];
+                const valueEl = document.getElementById(key + 'Value');
+                if (valueEl) {
+                    if (key === 'angle') valueEl.textContent = settings[key] + '°';
+                    else valueEl.textContent = settings[key] + 'px';
+                }
+            });
+            document.getElementById('color2Field').style.display = settings.bgType === 'gradient' ? 'block' : 'none';
+            document.getElementById('angleField').style.display = settings.bgType === 'gradient' ? 'block' : 'none';
+        }
+
+        function updatePreview() {
+            const container = document.getElementById('previewContainer');
+            const isLight = previewTheme === 'light';
+            const bg = settings.bgType === 'gradient' ? `linear-gradient(${settings.angle}deg, ${settings.color1} 0%, ${settings.color2} 100%)` : settings.color1;
+            const cardPadding = settings.cardSize === 'compact' ? '10px 12px' : settings.cardSize === 'large' ? '18px 20px' : '14px 16px';
+            const cardFontSize = settings.cardSize === 'compact' ? '14px' : settings.cardSize === 'large' ? '18px' : '16px';
+            const textColor = isLight ? '#212529' : '#f8f9fa';
+            const textSec = isLight ? '#6c757d' : '#adb5bd';
+            const cardBg = isLight ? settings.lightCard : settings.darkCard;
+            const appBg = isLight ? settings.lightBg : settings.darkBg;
+
+            container.style.background = appBg;
+            container.style.color = textColor;
+
+            container.innerHTML = `
+                <div class="pv-header" style="background:${bg};border-radius:${settings.radius}px;padding:${settings.padding}px 18px;margin:15px;">
+                    <div>
+                        <div class="pv-title" style="font-size:${settings.fontSize}px;"><i class="fas ${settings.icon}"></i><span>${settings.headerTitle}</span></div>
+                        ${settings.headerSubtitle ? `<div class="pv-subtitle">${settings.headerSubtitle}</div>` : ''}
+                    </div>
+                    <div style="color:white;font-size:18px;"><i class="fas fa-cog"></i></div>
+                </div>
+                <div class="pv-stats" style="background:${cardBg};color:${textSec};margin:0 15px;">
+                    <span>Всего машин: <strong style="color:${settings.accentColor};">4</strong></span>
+                </div>
+                <div style="position:relative;margin:12px 15px 0;">
+                    <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:${textSec};"></i>
+                    <input class="pv-search" placeholder="Поиск..." style="background:${cardBg};border-color:${isLight ? '#dee2e6' : '#495057'};color:${textColor};">
+                </div>
+                <div style="margin:12px 15px 0;">
+                    ${TEST_CARS.filter(c => settings.enabledTypes.includes(c.vehicle_type)).map(car => `
+                        <div class="pv-car-card" style="background:${cardBg};border-radius:${settings.cardRadius}px;border-left:${settings.cardBorder}px solid ${settings.accentColor};padding:${cardPadding};">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                <div class="pv-car-number" style="color:${settings.accentColor};font-size:${cardFontSize};"><i class="fas fa-car"></i> ${car.license_plate}</div>
+                                ${settings.showType ? `<span class="pv-type-badge" style="backgro
