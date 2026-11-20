@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Учёт автомобилей</title>
+    <title id="pageTitle">Учёт автомобилей</title>
+    <link rel="icon" id="pageFavicon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚗</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg-primary: #f8f9fa;
             --bg-secondary: #ffffff;
             --bg-card: #ffffff;
-            --bg-input: #f1f3f5;
             --text-primary: #212529;
             --text-secondary: #6c757d;
             --border-color: #dee2e6;
@@ -18,451 +18,117 @@
             --accent-hover: #0b5ed7;
             --success-color: #198754;
             --danger-color: #dc3545;
-            --shadow: 0 2px 8px rgba(0,0,0,0.08);
-            --shadow-hover: 0 4px 16px rgba(0,0,0,0.14);
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
         }
-
         [data-theme="dark"] {
             --bg-primary: #1a1d23;
             --bg-secondary: #212529;
             --bg-card: #2c3038;
-            --bg-input: #1a1d23;
             --text-primary: #f8f9fa;
             --text-secondary: #adb5bd;
             --border-color: #495057;
-            --accent-hover: #3d8bfd;
             --shadow: 0 2px 8px rgba(0,0,0,0.3);
             --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 18px 22px;
-            background: var(--gradient);
-            border-radius: 14px;
-            box-shadow: var(--shadow);
-        }
-
-        h1 { color: white; font-size: 24px; font-weight: 700; }
-
-        .settings-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 42px; height: 42px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            transition: transform 0.3s, background 0.3s;
-        }
-        .settings-btn:hover { transform: rotate(90deg); background: rgba(255,255,255,0.3); }
-
-        .total-line {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        .search-container { position: relative; margin-bottom: 10px; }
-
-        .search-box {
-            width: 100%;
-            padding: 14px 16px 14px 46px;
-            font-size: 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 18px; border-radius: 14px; box-shadow: var(--shadow); }
+        h1 { color: white; font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .header-subtitle { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 400; margin-top: 3px; width: 100%; }
+        .header-actions { display: flex; gap: 10px; }
+        .header-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+        .header-btn:hover { background: rgba(255,255,255,0.3); }
+        .stats-line { background: var(--bg-card); padding: 10px 16px; border-radius: 10px; box-shadow: var(--shadow); margin-bottom: 15px; font-size: 14px; color: var(--text-secondary); display: flex; gap: 20px; flex-wrap: wrap; }
+        .stats-line strong { color: var(--accent-color); font-size: 16px; }
+        .search-container { position: relative; margin-bottom: 15px; }
+        .search-box { width: 100%; padding: 14px 20px 14px 45px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); color: var(--text-primary); }
         .search-box:focus { outline: none; border-color: var(--accent-color); }
-        .search-icon {
-            position: absolute; left: 16px; top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-        }
-
-        .found-line {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            display: none;
-        }
-        .found-line.visible { display: block; }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-
-        .controls select {
-            flex: 1;
-            min-width: 160px;
-            padding: 10px 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .controls select:focus { outline: none; border-color: var(--accent-color); }
-
-        .car-list { display: grid; gap: 10px; margin-bottom: 100px; }
-
-        .car-card {
-            background: var(--bg-card);
-            padding: 16px 20px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid var(--accent-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        .filters-section { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 15px; }
+        .filters-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .filters-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .filters-clear { background: none; border: none; color: var(--accent-color); cursor: pointer; font-size: 13px; }
+        .filters-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { padding: 6px 12px; border-radius: 20px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 13px; cursor: pointer; }
+        .chip.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .sort-container { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .sort-label { font-size: 14px; color: var(--text-secondary); white-space: nowrap; }
+        .sort-select { flex: 1; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-primary); font-size: 14px; }
+        .search-result-info { background: var(--accent-color); color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; display: none; }
+        .search-result-info.visible { display: block; }
+        .car-list { display: grid; gap: 12px; margin-bottom: 100px; }
+        .car-card { background: var(--bg-card); padding: 14px 16px; border-radius: 10px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid var(--accent-color); }
         .car-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
-
-        .car-main { flex: 1; min-width: 0; }
-
-        .car-number {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent-color);
-            margin-bottom: 4px;
-            word-break: break-word;
-        }
-
-        .car-vin {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-family: 'Courier New', monospace;
-            word-break: break-all;
-        }
-
-        .car-meta {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-            flex-shrink: 0;
-        }
-
-        .badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: var(--bg-input);
-            color: var(--text-secondary);
-            white-space: nowrap;
-            border: 1px solid var(--border-color);
-        }
-        .badge.type { background: var(--accent-color); color: white; border-color: transparent; }
-        .badge.year { font-weight: 600; }
-
-        .modal {
-            display: none;
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 1000;
-            animation: fadeIn 0.25s;
-        }
-        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-
-        .modal-content {
-            background: var(--bg-secondary);
-            margin: 5% auto;
-            padding: 26px;
-            width: 92%;
-            max-width: 640px;
-            border-radius: 14px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            animation: slideUp 0.25s;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(40px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 22px;
-            padding-bottom: 14px;
-            border-bottom: 2px solid var(--border-color);
-        }
-        .modal-header h2 { font-size: 21px; }
-
-        .close-btn {
-            background: none; border: none;
-            font-size: 26px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            width: 36px; height: 36px;
-            border-radius: 50%;
-        }
-        .close-btn:hover { background: var(--bg-input); }
-
-        .form-group { margin-bottom: 16px; }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 11px 13px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 15px;
-            background: var(--bg-input);
-            color: var(--text-primary);
-        }
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-        textarea { resize: vertical; min-height: 90px; font-family: inherit; }
-
-        .btn {
-            padding: 11px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-right: 8px;
-            margin-top: 8px;
-            transition: transform 0.15s, box-shadow 0.15s;
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-        }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
+        .car-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+        .car-number { font-size: 18px; font-weight: 700; color: var(--accent-color); display: flex; align-items: center; gap: 8px; }
+        .car-type-badge { background: var(--bg-primary); color: var(--text-secondary); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+        .car-meta { display: flex; gap: 15px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
+        .car-meta span { display: flex; align-items: center; gap: 5px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
+        .modal-content { background: var(--bg-secondary); margin: 3% auto; padding: 25px; width: 92%; max-width: 650px; border-radius: 16px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border-color); }
+        .modal-header h2 { color: var(--text-primary); font-size: 22px; }
+        .close-btn { background: none; border: none; font-size: 28px; color: var(--text-secondary); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text-primary); font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 11px 14px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--text-primary); }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-color); }
+        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        .btn { padding: 11px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-right: 8px; margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background: var(--accent-color); color: white; }
-        .btn-secondary { background: var(--bg-input); color: var(--text-primary); border: 2px solid var(--border-color); }
+        .btn-secondary { background: var(--bg-primary); color: var(--text-primary); border: 2px solid var(--border-color); }
         .btn-danger { background: var(--danger-color); color: white; }
         .btn-success { background: var(--success-color); color: white; }
-        .btn-small { padding: 7px 13px; font-size: 13px; }
-
-        .action-buttons {
-            position: fixed;
-            bottom: 26px; right: 26px;
-            z-index: 100;
-        }
-
-        .fab {
-            width: 58px; height: 58px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 22px;
-            background: var(--accent-color);
-            color: white;
-            box-shadow: 0 4px 16px rgba(13,110,253,0.4);
-            transition: transform 0.2s;
-        }
-        .fab:hover { transform: scale(1.1); }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            align-items: flex-start;
-            gap: 12px;
-        }
-        .info-label {
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            flex-shrink: 0;
-        }
-        .info-value {
-            color: var(--text-primary);
-            text-align: right;
-            word-break: break-word;
-        }
-
-        /* Навесное оборудование */
         .equipment-list { display: flex; flex-direction: column; gap: 10px; }
-
-        .equipment-item {
-            display: flex;
-            gap: 8px;
-            align-items: stretch;
-        }
+        .equipment-item { display: flex; gap: 10px; align-items: center; background: var(--bg-primary); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
         .equipment-item input { flex: 1; }
-        .equipment-item select { width: 130px; flex-shrink: 0; }
-        .equipment-remove {
-            background: var(--danger-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            width: 42px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .season-badge {
-            display: inline-block;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 6px;
-            font-weight: 600;
-        }
-        .season-winter { background: #cfe2ff; color: #084298; }
-        .season-summer { background: #fff3cd; color: #664d03; }
-        [data-theme="dark"] .season-winter { background: #084298; color: #cfe2ff; }
-        [data-theme="dark"] .season-summer { background: #664d03; color: #fff3cd; }
-
-        .equip-view-item {
-            display: block;
-            margin-bottom: 4px;
-            text-align: right;
-        }
-
-        /* Настройки */
-        .settings-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
-        }
-        .settings-row:last-child { border-bottom: none; }
-
-        .switch {
-            position: relative;
-            width: 54px; height: 30px;
-            flex-shrink: 0;
-        }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            inset: 0;
-            background: var(--border-color);
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .slider::before {
-            content: "";
-            position: absolute;
-            height: 22px; width: 22px;
-            left: 4px; bottom: 4px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.3s;
-        }
-        .switch input:checked + .slider { background: var(--accent-color); }
-        .switch input:checked + .slider::before { transform: translateX(24px); }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-secondary);
-        }
+        .equipment-item select { width: 120px; flex-shrink: 0; }
+        .equipment-item .btn-remove { background: var(--danger-color); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
+        .add-equipment-btn { background: none; border: 2px dashed var(--border-color); color: var(--text-secondary); padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; margin-top: 10px; }
+        .info-row { display: flex; padding: 12px 0; border-bottom: 1px solid var(--border-color); gap: 15px; }
+        .info-label { font-weight: 600; color: var(--text-secondary); min-width: 180px; font-size: 14px; display: flex; align-items: flex-start; gap: 8px; }
+        .info-value { color: var(--text-primary); flex: 1; word-break: break-word; }
+        .equipment-display { display: flex; flex-direction: column; gap: 6px; }
+        .equipment-tag { background: var(--bg-primary); padding: 6px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid var(--accent-color); }
+        .season-winter { color: #0d6efd; }
+        .season-summer { color: #fd7e14; }
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-secondary); }
         .empty-state i { font-size: 60px; margin-bottom: 15px; opacity: 0.3; }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 19px; }
-            .car-card { flex-direction: column; align-items: flex-start; }
-            .car-meta { flex-direction: row; align-self: flex-start; }
-            .info-row { flex-direction: column; }
-            .info-value { text-align: left; }
-            .equipment-item { flex-wrap: wrap; }
-            .equipment-item select { width: 100%; }
-        }
+        .settings-section { background: var(--bg-primary); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .settings-section h3 { font-size: 15px; margin-bottom: 12px; color: var(--text-primary); }
+        .theme-switcher { display: flex; gap: 10px; }
+        .theme-option { flex: 1; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--bg-card); cursor: pointer; text-align: center; font-size: 14px; color: var(--text-primary); }
+        .theme-option.active { border-color: var(--accent-color); background: var(--accent-color); color: white; }
+        .import-btn-full { width: 100%; padding: 14px; background: var(--success-color); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .config-link { display: inline-block; margin-top: 10px; color: var(--accent-color); font-size: 13px; text-decoration: none; }
+        .config-link:hover { text-decoration: underline; }
+        @media (max-width: 768px) { h1 { font-size: 18px; } .modal-content { margin: 5% auto; padding: 18px; } .info-row { flex-direction: column; gap: 5px; } .info-label { min-width: auto; } .equipment-item { flex-wrap: wrap; } .equipment-item select { width: 100%; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-car"></i> Учёт автомобилей</h1>
-            <button class="settings-btn" onclick="openSettings()" title="Настройки">
-                <i class="fas fa-cog"></i>
-            </button>
-        </header>
-
-        <div class="total-line" id="totalLine">Всего: 0</div>
-
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-box" id="searchInput" placeholder="Поиск по госномеру или VIN...">
-        </div>
-
-        <div class="found-line" id="foundLine"></div>
-
-        <div class="controls">
-            <select id="typeFilter" title="Фильтр по типу">
-                <option value="">Все типы ТС</option>
-            </select>
-            <select id="sortSelect" title="Сортировка">
-                <option value="plate">По госномеру (А-Я)</option>
-                <option value="year-desc">Год выпуска: сначала новые</option>
-                <option value="year-asc">Год выпуска: сначала старые</option>
-                <option value="type">По типу ТС</option>
-            </select>
-        </div>
-
-        <div class="car-list" id="carList">
-            <div class="empty-state">
-                <i class="fas fa-car"></i>
-                <p>Загрузка данных...</p>
+        <header id="mainHeader">
+            <h1 id="headerTitle"><i class="fas fa-car"></i> Учёт автомобилей</h1>
+            <div class="header-actions">
+                <button class="header-btn" onclick="openSettings()" title="Настройки"><i class="fas fa-cog"></i></button>
             </div>
-        </div>
+        </header>
+        <div class="stats-line"><span>Всего машин: <strong id="totalCars">0</strong></span><span id="filteredStats" style="display:none;">Найдено: <strong id="filteredCars">0</strong></span></div>
+        <div class="search-container"><i class="fas fa-search search-icon"></i><input type="text" class="search-box" id="searchInput" placeholder="Поиск по госномеру или VIN..."></div>
+        <div class="filters-section"><div class="filters-header"><span class="filters-title"><i class="fas fa-filter"></i> Тип ТС</span><button class="filters-clear" onclick="clearFilters()">Сбросить</button></div><div class="filters-chips" id="filtersChips"></div></div>
+        <div class="sort-container"><span class="sort-label"><i class="fas fa-sort"></i> Сортировка:</span><select class="sort-select" id="sortSelect"><option value="default">По умолчанию</option><option value="year-desc">Год (сначала новые)</option><option value="year-asc">Год (сначала старые)</option><option value="alpha">По алфавиту</option><option value="type">По типу ТС</option></select></div>
+        <div class="search-result-info" id="searchResultInfo"></div>
+        <div class="car-list" id="carList"><div class="empty-state"><i class="fas fa-car"></i><p>Загрузка данных...</p></div></div>
     </div>
-
-    <div class="action-buttons">
-        <button class="fab" onclick="openAddModal()" title="Добавить машину">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
-
+    <button class="header-btn" style="position:fixed;bottom:25px;right:25px;width:56px;height:56px;background:var(--accent-color);color:white;font-size:22px;box-shadow:0 4px 16px rgba(0,0,0,0.3);z-index:50;" onclick="openAddModal()" title="Добавить машину"><i class="fas fa-plus"></i></button>
     <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(event)">
-
     <div class="modal" id="carModal"><div class="modal-content" id="modalContent"></div></div>
-    <div class="modal" id="settingsModal"><div class="modal-content" id="settingsContent"></div></div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot }
-            from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyD55WtH_vvZs2LluNmiSzvhFveUSsk-sws",
@@ -477,366 +143,355 @@
         const db = getFirestore(app);
         const carsCollection = collection(db, 'cars');
 
-        // ===== Типы ТС (сортировка по алфавиту при рендере) =====
-        const VEHICLE_TYPES = [
-            "КДМ","ПМ","Фанты","Самосвалы","Ливнёвка","Тракторы","Мини-погрузчики",
-            "Грейдеры","Фронтальные погрузчики","Бродвеи","Катки","ГАЗ","Легковые",
-            "Литой асфальт","Фрезы","Краны","Вилочные","Тягачи","Бульдозеры",
-            "Экскаваторы","Мусоровозы","Тротуарная","СНП"
-        ].sort((a, b) => a.localeCompare(b, 'ru'));
+        // ===== ЗАГРУЗКА НАСТРОЕК ИЗ settings.json =====
+        const DEFAULT_SETTINGS = {
+            headerTitle: "Учёт автомобилей",
+            headerSubtitle: "Рабочий инструмент",
+            icon: "fa-car",
+            bgType: "gradient",
+            color1: "#667eea",
+            color2: "#764ba2",
+            angle: 135,
+            fontSize: 22,
+            radius: 14,
+            padding: 18,
+            cardSize: "normal",
+            showVin: true,
+            showType: true,
+            showYear: true,
+            showSeals: false,
+            cardRadius: 10,
+            cardBorder: 4,
+            accentColor: "#0d6efd",
+            successColor: "#198754",
+            dangerColor: "#dc3545",
+            lightBg: "#f8f9fa",
+            lightCard: "#ffffff",
+            darkBg: "#1a1d23",
+            darkCard: "#2c3038",
+            enabledTypes: ["Бродвеи","Бульдозеры","Вилочные","ГАЗ","Грейдеры","Экскаваторы","Катки","КДМ","Краны","Легковые","Литой асфальт","Ливнёвка","Мини-погрузчики","Мусоровозы","ПМ","Самосвалы","СНП","Тягачи","Тракторы","Тротуарная","Фанты","Фронтальные погрузчики","Фрезы"],
+            pageTitle: "Учёт автомобилей",
+            pageFavicon: "🚗"
+        };
 
-        let cars = [];
-        let currentCarId = null;
+        let settings = { ...DEFAULT_SETTINGS };
 
-        // ===== Тема =====
+        async function loadSettings() {
+            try {
+                const res = await fetch('settings.json?t=' + Date.now());
+                if (res.ok) {
+                    const loaded = await res.json();
+                    settings = { ...DEFAULT_SETTINGS, ...loaded };
+                }
+            } catch(e) {
+                console.warn('Не удалось загрузить settings.json, использую настройки по умолчанию');
+            }
+            applySettings();
+        }
+
+        function applySettings() {
+            // CSS переменные
+            const root = document.documentElement;
+            root.style.setProperty('--accent-color', settings.accentColor);
+            root.style.setProperty('--accent-hover', adjustColor(settings.accentColor, -20));
+            root.style.setProperty('--success-color', settings.successColor);
+            root.style.setProperty('--danger-color', settings.dangerColor);
+            root.style.setProperty('--bg-primary', settings.lightBg);
+            root.style.setProperty('--bg-secondary', settings.lightCard);
+            root.style.setProperty('--bg-card', settings.lightCard);
+
+            // Тёмная тема через data-атрибут
+            const darkStyle = document.createElement('style');
+            darkStyle.textContent = `[data-theme="dark"] { --bg-primary: ${settings.darkBg}; --bg-secondary: ${settings.darkCard}; --bg-card: ${settings.darkCard}; }`;
+            document.head.appendChild(darkStyle);
+
+            // Шапка
+            const bg = settings.bgType === 'gradient' 
+                ? `linear-gradient(${settings.angle}deg, ${settings.color1} 0%, ${settings.color2} 100%)`
+                : settings.color1;
+            const header = document.getElementById('mainHeader');
+            header.style.background = bg;
+            header.style.borderRadius = settings.radius + 'px';
+            header.style.padding = settings.padding + 'px 18px';
+
+            const titleEl = document.getElementById('headerTitle');
+            titleEl.innerHTML = `<i class="fas ${settings.icon}"></i> ${settings.headerTitle}`;
+            titleEl.style.fontSize = settings.fontSize + 'px';
+
+            if (settings.headerSubtitle) {
+                const sub = document.createElement('div');
+                sub.className = 'header-subtitle';
+                sub.textContent = settings.headerSubtitle;
+                titleEl.appendChild(sub);
+            }
+
+            // Страница
+            document.getElementById('pageTitle').textContent = settings.pageTitle;
+            document.getElementById('pageFavicon').href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${encodeURIComponent(settings.pageFavicon)}</text></svg>`;
+
+            // Карточки
+            const cardPadding = settings.cardSize === 'compact' ? '10px 12px' : settings.cardSize === 'large' ? '18px 20px' : '14px 16px';
+            const cardFontSize = settings.cardSize === 'compact' ? '14px' : settings.cardSize === 'large' ? '20px' : '18px';
+            const cardStyle = document.createElement('style');
+            cardStyle.textContent = `
+                .car-card { padding: ${cardPadding}; border-radius: ${settings.cardRadius}px; border-left: ${settings.cardBorder}px solid var(--accent-color); }
+                .car-number { font-size: ${cardFontSize}; }
+            `;
+            document.head.appendChild(cardStyle);
+        }
+
+        function adjustColor(hex, amount) {
+            const num = parseInt(hex.slice(1), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) + amount));
+            const b = Math.max(0, Math.min(255, (num & 0xFF) + amount));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        }
+
+        // ===== ОСНОВНАЯ ЛОГИКА =====
+        let cars = [], currentCarId = null, activeFilters = new Set();
+
         function initTheme() {
-            const saved = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
+            const t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        }
+        function setTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            localStorage.setItem('theme', t);
         }
         initTheme();
 
-        window.toggleTheme = function() {
-            const cur = document.documentElement.getAttribute('data-theme');
-            const next = cur === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            const sw = document.getElementById('themeSwitch');
-            if (sw) sw.checked = (next === 'dark');
-        };
-
-        // ===== Настройки =====
-        window.openSettings = function() {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.getElementById('settingsContent').innerHTML = `
-                <div class="modal-header">
-                    <h2><i class="fas fa-cog"></i> Настройки</h2>
-                    <button class="close-btn" onclick="closeSettings()">&times;</button>
-                </div>
-                <div class="settings-row">
-                    <div>
-                        <div style="font-weight:600;"><i class="fas fa-moon"></i> Тёмная тема</div>
-                        <div style="font-size:13px;color:var(--text-secondary);">Переключение светлой/тёмной темы</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="themeSwitch" ${isDark ? 'checked' : ''} onchange="toggleTheme()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="settings-row">
-                    <div>
-                        <div style="font-weight:600;"><i class="fas fa-file-import"></i> Импорт из CSV</div>
-                        <div style="font-size:13px;color:var(--text-secondary);">Массовая загрузка машин из Excel (CSV). Колонки: license_plate, vin, vehicle_type, year, battery_seals, comment</div>
-                    </div>
-                    <button class="btn btn-success" onclick="document.getElementById('importFile').click()">
-                        <i class="fas fa-upload"></i> Выбрать файл
-                    </button>
-                </div>
-            `;
-            document.getElementById('settingsModal').style.display = 'block';
-        };
-
-        window.closeSettings = function() {
-            document.getElementById('settingsModal').style.display = 'none';
-        };
-
-        // ===== Навесное: нормализация (обратная совместимость со старыми строками) =====
-        function getEquipment(car) {
-            if (Array.isArray(car.equipment)) return car.equipment;
-            if (typeof car.equipment === 'string' && car.equipment.trim()) {
-                return [{ name: car.equipment.trim(), season: '' }];
-            }
-            return [];
+        function renderFilters() {
+            document.getElementById('filtersChips').innerHTML = settings.enabledTypes.map(t =>
+                `<div class="chip ${activeFilters.has(t) ? 'active' : ''}" onclick="toggleFilter('${t}')">${t}</div>`
+            ).join('');
         }
-
-        // ===== Загрузка в реальном времени =====
-        onSnapshot(carsCollection, (snapshot) => {
-            cars = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        window.toggleFilter = function(t) {
+            activeFilters.has(t) ? activeFilters.delete(t) : activeFilters.add(t);
+            renderFilters();
             renderCars();
+        };
+        window.clearFilters = function() { activeFilters.clear(); renderFilters(); renderCars(); };
+
+        onSnapshot(carsCollection, (s) => {
+            cars = [];
+            s.forEach(d => cars.push({ id: d.id, ...d.data() }));
+            renderCars();
+            updateStats();
         });
 
-        // ===== Рендер =====
-        function renderCars() {
+        function updateStats() { document.getElementById('totalCars').textContent = cars.length; }
+
+        function getFilteredAndSortedCars() {
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
-            const typeFilter = document.getElementById('typeFilter').value;
+            const isSearching = search.length > 0;
+            const hasFilters = activeFilters.size > 0;
+            let filtered = cars.filter(c =>
+                (!isSearching || (c.license_plate||'').toLowerCase().includes(search) || (c.vin||'').toLowerCase().includes(search)) &&
+                (!hasFilters || activeFilters.has(c.vehicle_type))
+            );
             const sort = document.getElementById('sortSelect').value;
-
-            document.getElementById('totalLine').textContent = `Всего: ${cars.length}`;
-
-            let filtered = cars.filter(car => {
-                const matchSearch = !search ||
-                    (car.license_plate || '').toLowerCase().includes(search) ||
-                    (car.vin || '').toLowerCase().includes(search);
-                const matchType = !typeFilter || car.vehicle_type === typeFilter;
-                return matchSearch && matchType;
-            });
-
-            filtered.sort((a, b) => {
-                if (sort === 'plate') return (a.license_plate || '').localeCompare(b.license_plate || '', 'ru');
-                if (sort === 'year-desc') return (b.year || 0) - (a.year || 0);
-                if (sort === 'year-asc') return (a.year || 0) - (b.year || 0);
-                if (sort === 'type') return (a.vehicle_type || '').localeCompare(b.vehicle_type || '', 'ru');
+            filtered.sort((a,b) => {
+                if(sort==='year-desc') return (b.year||0)-(a.year||0);
+                if(sort==='year-asc') return (a.year||0)-(b.year||0);
+                if(sort==='alpha') return (a.license_plate||'').localeCompare(b.license_plate||'');
+                if(sort==='type') return (a.vehicle_type||'').localeCompare(b.vehicle_type||'');
                 return 0;
             });
+            return { filtered, isSearching, hasFilters };
+        }
 
-            const foundLine = document.getElementById('foundLine');
-            if (search || typeFilter) {
-                foundLine.textContent = `Найдено: ${filtered.length}`;
-                foundLine.classList.add('visible');
-            } else {
-                foundLine.classList.remove('visible');
-            }
-
+        function renderCars() {
+            const { filtered, isSearching, hasFilters } = getFilteredAndSortedCars();
             const list = document.getElementById('carList');
+            const info = document.getElementById('searchResultInfo');
+            const stats = document.getElementById('filteredStats');
+            if (isSearching || hasFilters) {
+                info.textContent = `Найдено: ${filtered.length} из ${cars.length}`;
+                info.classList.add('visible');
+                stats.style.display = 'inline';
+                document.getElementById('filteredCars').textContent = filtered.length;
+            } else {
+                info.classList.remove('visible');
+                stats.style.display = 'none';
+            }
             if (filtered.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-car"></i>
-                        <p>${cars.length === 0 ? 'Добавьте первую машину' : 'Ничего не найдено'}</p>
-                    </div>`;
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-car"></i><p>${cars.length === 0 ? 'Добавьте первую машину кнопкой +' : 'Ничего не найдено'}</p></div>`;
                 return;
             }
-
-            list.innerHTML = filtered.map(car => `
-                <div class="car-card" onclick="openCarDetails('${car.id}')">
-                    <div class="car-main">
-                        <div class="car-number">${car.license_plate || 'Без номера'}</div>
-                        <div class="car-vin"><i class="fas fa-barcode"></i> ${car.vin || 'VIN не указан'}</div>
+            list.innerHTML = filtered.map(c => `
+                <div class="car-card" onclick="openCarDetails('${c.id}')">
+                    <div class="car-header">
+                        <div class="car-number"><i class="fas fa-car"></i> ${c.license_plate || 'Без номера'}</div>
+                        ${settings.showType && c.vehicle_type ? `<div class="car-type-badge">${c.vehicle_type}</div>` : ''}
                     </div>
                     <div class="car-meta">
-                        ${car.vehicle_type ? `<span class="badge type">${car.vehicle_type}</span>` : ''}
-                        ${car.year ? `<span class="badge year">${car.year}</span>` : ''}
+                        ${settings.showVin ? `<span><i class="fas fa-barcode"></i> ${c.vin || 'VIN не указан'}</span>` : ''}
+                        ${settings.showYear && c.year ? `<span><i class="fas fa-calendar"></i> ${c.year} г.</span>` : ''}
                     </div>
                 </div>
             `).join('');
         }
 
-        // ===== Карточка =====
         window.openCarDetails = function(id) {
-            const car = cars.find(c => c.id === id);
+            const c = cars.find(x => x.id === id);
             currentCarId = id;
-            const equip = getEquipment(car);
-
-            const equipHTML = equip.length === 0 ? '-' : equip.map(e => `
-                <span class="equip-view-item">${e.name}${e.season ?
-                    `<span class="season-badge ${e.season === 'winter' ? 'season-winter' : 'season-summer'}">${e.season === 'winter' ? '❄ Зима' : '☀ Лето'}</span>` : ''}</span>
-            `).join('');
-
+            const eqHTML = (c.equipment && c.equipment.length > 0)
+                ? `<div class="equipment-display">${c.equipment.map(e => `<div class="equipment-tag"><i class="fas fa-cog"></i> ${e.name} <span class="${e.season === 'зима' ? 'season-winter' : 'season-summer'}"><i class="fas fa-${e.season === 'зима' ? 'snowflake' : 'sun'}"></i> ${e.season}</span></div>`).join('')}</div>`
+                : '—';
             document.getElementById('modalContent').innerHTML = `
-                <div class="modal-header">
-                    <h2><i class="fas fa-car"></i> Карточка автомобиля</h2>
-                    <button class="close-btn" onclick="closeModal()">&times;</button>
-                </div>
-                <div class="info-row"><span class="info-label">Госномер</span><span class="info-value">${car.license_plate || '-'}</span></div>
-                <div class="info-row"><span class="info-label">VIN</span><span class="info-value">${car.vin || '-'}</span></div>
-                <div class="info-row"><span class="info-label">Тип ТС</span><span class="info-value">${car.vehicle_type || '-'}</span></div>
-                <div class="info-row"><span class="info-label">Год выпуска</span><span class="info-value">${car.year || '-'}</span></div>
-                <div class="info-row"><span class="info-label">Пломбы АКБ</span><span class="info-value">${car.battery_seals || '-'}</span></div>
-                <div class="info-row"><span class="info-label">Навесное оборудование</span><span class="info-value">${equipHTML}</span></div>
-                <div class="info-row"><span class="info-label">Комментарий</span><span class="info-value">${car.comment || '-'}</span></div>
-                <div style="margin-top:22px;">
+                <div class="modal-header"><h2><i class="fas fa-car"></i> Карточка автомобиля</h2><button class="close-btn" onclick="closeModal()">&times;</button></div>
+                <div class="info-row"><span class="info-label"><i class="fas fa-id-card"></i> Госномер:</span><span class="info-value">${c.license_plate || '-'}</span></div>
+                <div class="info-row"><span class="info-label"><i class="fas fa-barcode"></i> VIN:</span><span class="info-value">${c.vin || '-'}</span></div>
+                ${settings.showType ? `<div class="info-row"><span class="info-label"><i class="fas fa-truck"></i> Тип ТС:</span><span class="info-value">${c.vehicle_type || '-'}</span></div>` : ''}
+                ${settings.showYear ? `<div class="info-row"><span class="info-label"><i class="fas fa-calendar"></i> Год выпуска:</span><span class="info-value">${c.year || '-'}</span></div>` : ''}
+                ${settings.showSeals ? `<div class="info-row"><span class="info-label"><i class="fas fa-battery-full"></i> Пломбы АКБ:</span><span class="info-value">${c.battery_seals || '-'}</span></div>` : ''}
+                <div class="info-row" style="flex-direction:column;"><span class="info-label"><i class="fas fa-tools"></i> Навесное оборудование:</span><span class="info-value">${eqHTML}</span></div>
+                <div class="info-row"><span class="info-label"><i class="fas fa-comment"></i> Комментарий:</span><span class="info-value">${c.comment || '-'}</span></div>
+                <div style="margin-top:20px;">
                     <button class="btn btn-primary" onclick="openEditModal('${id}')"><i class="fas fa-edit"></i> Редактировать</button>
                     <button class="btn btn-danger" onclick="deleteCar('${id}')"><i class="fas fa-trash"></i> Удалить</button>
-                </div>
-            `;
+                    <button class="btn btn-secondary" onclick="closeModal()"><i class="fas fa-times"></i> Закрыть</button>
+                </div>`;
             document.getElementById('carModal').style.display = 'block';
         };
 
-        // ===== Форма =====
-        function typeOptions(selected) {
-            return `<option value="">— не выбран —</option>` +
-                VEHICLE_TYPES.map(t => `<option value="${t}" ${t === selected ? 'selected' : ''}>${t}</option>`).join('');
-        }
-
-        function equipItemHTML(item = { name: '', season: '' }) {
-            return `
-                <div class="equipment-item">
-                    <input type="text" class="equip-name" value="${item.name || ''}" placeholder="Название / номер навесного">
-                    <select class="equip-season">
-                        <option value="" ${!item.season ? 'selected' : ''}>Сезон —</option>
-                        <option value="winter" ${item.season === 'winter' ? 'selected' : ''}>❄ Зима</option>
-                        <option value="summer" ${item.season === 'summer' ? 'selected' : ''}>☀ Лето</option>
-                    </select>
-                    <button type="button" class="equipment-remove" onclick="this.parentElement.remove()" title="Удалить">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>`;
-        }
-
         function generateFormHTML(car = {}) {
-            const equip = getEquipment(car);
-            const equipList = equip.length ? equip.map(equipItemHTML).join('') : equipItemHTML();
+            const eq = car.equipment || [];
             return `
-                <div class="form-group">
-                    <label>Госномер</label>
-                    <input type="text" id="editLicensePlate" value="${car.license_plate || ''}" placeholder="А123БВ777">
+                <div class="form-group"><label><i class="fas fa-id-card"></i> Госномер:</label><input type="text" id="editLicensePlate" value="${car.license_plate || ''}"></div>
+                <div class="form-group"><label><i class="fas fa-barcode"></i> VIN:</label><input type="text" id="editVin" value="${car.vin || ''}"></div>
+                <div class="form-group"><label><i class="fas fa-truck"></i> Тип ТС:</label><select id="editVehicleType"><option value="">— Не выбран —</option>${settings.enabledTypes.map(t => `<option value="${t}" ${car.vehicle_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+                <div class="form-group"><label><i class="fas fa-calendar"></i> Год выпуска:</label><input type="number" id="editYear" value="${car.year || ''}" min="1950" max="2030"></div>
+                <div class="form-group"><label><i class="fas fa-battery-full"></i> Пломбы АКБ:</label><input type="text" id="editBatterySeals" value="${car.battery_seals || ''}"></div>
+                <div class="form-group"><label><i class="fas fa-tools"></i> Навесное оборудование:</label>
+                    <div class="equipment-list" id="equipmentList">${eq.map(e => `<div class="equipment-item"><input type="text" placeholder="Название" value="${e.name||''}" class="eq-name"><select class="eq-season"><option value="лето" ${e.season==='лето'?'selected':''}>☀️ Лето</option><option value="зима" ${e.season==='зима'?'selected':''}>❄️ Зима</option></select><button type="button" class="btn-remove" onclick="this.closest('.equipment-item').remove()"><i class="fas fa-times"></i></button></div>`).join('')}</div>
+                    <button type="button" class="add-equipment-btn" onclick="addEquipmentItem()"><i class="fas fa-plus"></i> Добавить оборудование</button>
                 </div>
-                <div class="form-group">
-                    <label>VIN</label>
-                    <input type="text" id="editVin" value="${car.vin || ''}" placeholder="XTA210930Y2764409">
-                </div>
-                <div class="form-group">
-                    <label>Тип ТС</label>
-                    <select id="editVehicleType">${typeOptions(car.vehicle_type)}</select>
-                </div>
-                <div class="form-group">
-                    <label>Год выпуска</label>
-                    <input type="number" id="editYear" value="${car.year || ''}" min="1950" max="2030" placeholder="2015">
-                </div>
-                <div class="form-group">
-                    <label>Пломбы АКБ</label>
-                    <input type="text" id="editBatterySeals" value="${car.battery_seals || ''}" placeholder="Номер пломбы">
-                </div>
-                <div class="form-group">
-                    <label>Навесное оборудование</label>
-                    <div class="equipment-list" id="equipmentList">${equipList}</div>
-                    <button type="button" class="btn btn-secondary btn-small" onclick="addEquipItem()" style="margin-top:8px;">
-                        <i class="fas fa-plus"></i> Добавить навесное
-                    </button>
-                </div>
-                <div class="form-group">
-                    <label>Комментарий</label>
-                    <textarea id="editComment" placeholder="Ваши заметки...">${car.comment || ''}</textarea>
-                </div>
+                <div class="form-group"><label><i class="fas fa-comment"></i> Комментарий:</label><textarea id="editComment">${car.comment || ''}</textarea></div>
                 <div style="margin-top:20px;">
                     <button class="btn btn-primary" onclick="saveCar()"><i class="fas fa-save"></i> Сохранить</button>
                     <button class="btn btn-secondary" onclick="closeModal()"><i class="fas fa-times"></i> Отмена</button>
-                </div>
-            `;
+                </div>`;
         }
 
-        window.addEquipItem = function() {
-            document.getElementById('equipmentList').insertAdjacentHTML('beforeend', equipItemHTML());
+        window.addEquipmentItem = function() {
+            const list = document.getElementById('equipmentList');
+            const div = document.createElement('div');
+            div.className = 'equipment-item';
+            div.innerHTML = '<input type="text" placeholder="Название" class="eq-name"><select class="eq-season"><option value="лето">☀️ Лето</option><option value="зима">❄️ Зима</option></select><button type="button" class="btn-remove" onclick="this.closest(\'.equipment-item\').remove()"><i class="fas fa-times"></i></button>';
+            list.appendChild(div);
         };
 
         window.openEditModal = function(id) {
-            const car = cars.find(c => c.id === id);
+            const c = cars.find(x => x.id === id);
             currentCarId = id;
-            document.getElementById('modalContent').innerHTML = `
-                <div class="modal-header">
-                    <h2><i class="fas fa-edit"></i> Редактирование</h2>
-                    <button class="close-btn" onclick="closeModal()">&times;</button>
-                </div>` + generateFormHTML(car);
+            document.getElementById('modalContent').innerHTML = `<div class="modal-header"><h2><i class="fas fa-edit"></i> Редактирование</h2><button class="close-btn" onclick="closeModal()">&times;</button></div>` + generateFormHTML(c);
             document.getElementById('carModal').style.display = 'block';
         };
 
         window.openAddModal = function() {
             currentCarId = null;
-            document.getElementById('modalContent').innerHTML = `
-                <div class="modal-header">
-                    <h2><i class="fas fa-plus-circle"></i> Добавить автомобиль</h2>
-                    <button class="close-btn" onclick="closeModal()">&times;</button>
-                </div>` + generateFormHTML();
+            document.getElementById('modalContent').innerHTML = `<div class="modal-header"><h2><i class="fas fa-plus-circle"></i> Добавить автомобиль</h2><button class="close-btn" onclick="closeModal()">&times;</button></div>` + generateFormHTML();
             document.getElementById('carModal').style.display = 'block';
         };
 
-        function collectEquipment() {
-            const items = document.querySelectorAll('.equipment-item');
-            const result = [];
-            items.forEach(item => {
-                const name = item.querySelector('.equip-name').value.trim();
-                const season = item.querySelector('.equip-season').value;
-                if (name) result.push({ name, season });
-            });
-            return result;
-        }
-
         window.saveCar = async function() {
-            const btn = event.target.closest('.btn');
+            const btn = document.querySelector('.btn-primary');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
             btn.disabled = true;
-
-            const carData = {
+            const equipment = Array.from(document.querySelectorAll('.equipment-item')).map(it => ({
+                name: it.querySelector('.eq-name').value.trim(),
+                season: it.querySelector('.eq-season').value
+            })).filter(e => e.name);
+            const data = {
                 license_plate: document.getElementById('editLicensePlate').value.trim(),
                 vin: document.getElementById('editVin').value.trim(),
                 vehicle_type: document.getElementById('editVehicleType').value,
                 year: parseInt(document.getElementById('editYear').value) || null,
                 battery_seals: document.getElementById('editBatterySeals').value.trim(),
-                equipment: collectEquipment(),
+                equipment,
                 comment: document.getElementById('editComment').value.trim()
             };
-
             try {
-                if (currentCarId) {
-                    await updateDoc(doc(db, 'cars', currentCarId), carData);
-                } else {
-                    await addDoc(carsCollection, carData);
-                }
+                if (currentCarId) await updateDoc(doc(db,'cars',currentCarId), data);
+                else await addDoc(carsCollection, data);
                 closeModal();
-            } catch (error) {
-                alert('Ошибка сохранения: ' + error.message);
-                btn.disabled = false;
-            }
+            } catch(e) { alert('Ошибка: ' + e.message); }
+            btn.innerHTML = orig;
+            btn.disabled = false;
         };
 
         window.deleteCar = async function(id) {
-            if (confirm('Удалить эту карточку безвозвратно?')) {
-                await deleteDoc(doc(db, 'cars', id));
-                closeModal();
-            }
+            if (confirm('Удалить безвозвратно?')) { await deleteDoc(doc(db,'cars',id)); closeModal(); }
         };
 
-        window.closeModal = function() {
-            document.getElementById('carModal').style.display = 'none';
+        window.closeModal = function() { document.getElementById('carModal').style.display = 'none'; };
+
+        window.openSettings = function() {
+            const t = document.documentElement.getAttribute('data-theme') || 'light';
+            document.getElementById('modalContent').innerHTML = `
+                <div class="modal-header"><h2><i class="fas fa-cog"></i> Настройки</h2><button class="close-btn" onclick="closeModal()">&times;</button></div>
+                <div class="settings-section"><h3><i class="fas fa-palette"></i> Тема</h3>
+                    <div class="theme-switcher">
+                        <div class="theme-option ${t==='light'?'active':''}" onclick="selectTheme('light')"><i class="fas fa-sun"></i> Светлая</div>
+                        <div class="theme-option ${t==='dark'?'active':''}" onclick="selectTheme('dark')"><i class="fas fa-moon"></i> Тёмная</div>
+                    </div>
+                </div>
+                <div class="settings-section"><h3><i class="fas fa-file-import"></i> Импорт CSV</h3>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Колонки: license_plate, vin, vehicle_type, year, battery_seals, comment</p>
+                    <button class="import-btn-full" onclick="document.getElementById('importFile').click();closeModal();"><i class="fas fa-upload"></i> Выбрать CSV</button>
+                </div>
+                <div class="settings-section"><h3><i class="fas fa-paint-brush"></i> Дизайн приложения</h3>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Настрой внешний вид через редактор</p>
+                    <a href="editor.html" class="config-link" target="_blank"><i class="fas fa-external-link-alt"></i> Открыть редактор дизайна →</a>
+                </div>`;
+            document.getElementById('carModal').style.display = 'block';
         };
 
-        // ===== Импорт CSV =====
-        window.importCSV = function(event) {
+        window.selectTheme = function(t) { setTheme(t); openSettings(); };
+
+        window.importCSV = async function(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+                const lines = e.target.result.split('\n').filter(l => l.trim());
                 if (lines.length < 2) { alert('Файл пуст'); return; }
-
                 const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                const carsToAdd = [];
-
+                const toAdd = [];
                 for (let i = 1; i < lines.length; i++) {
-                    const values = lines[i].split(',').map(v => v.trim());
-                    const carData = {};
-                    headers.forEach((h, idx) => { carData[h] = values[idx] || ''; });
-
-                    if (carData.license_plate || carData.vin) {
-                        carsToAdd.push({
-                            license_plate: carData.license_plate,
-                            vin: carData.vin,
-                            vehicle_type: carData.vehicle_type || '',
-                            year: parseInt(carData.year) || null,
-                            battery_seals: carData.battery_seals || '',
-                            equipment: carData.equipment ? [{ name: carData.equipment, season: '' }] : [],
-                            comment: carData.comment || ''
+                    const vals = lines[i].split(',').map(v => v.trim());
+                    const data = {};
+                    headers.forEach((h,j) => data[h] = vals[j] || '');
+                    if (data.year) data.year = parseInt(data.year) || null;
+                    if (data.equipment && typeof data.equipment === 'string') {
+                        data.equipment = data.equipment.split(';').map(s=>s.trim()).filter(s=>s).map(eq => {
+                            const p = eq.split(':').map(s=>s.trim());
+                            return { name: p[0], season: p[1] || 'лето' };
                         });
                     }
+                    if (data.license_plate || data.vin) toAdd.push(data);
                 }
-
-                if (!carsToAdd.length) { alert('Машины не найдены'); return; }
-                if (!confirm(`Найдено ${carsToAdd.length} машин. Импортировать?`)) return;
-
-                let ok = 0, fail = 0;
-                for (const c of carsToAdd) {
-                    try { await addDoc(carsCollection, c); ok++; }
-                    catch { fail++; }
+                if (toAdd.length === 0) { alert('Нет машин'); return; }
+                if (confirm('Добавить ' + toAdd.length + ' машин?')) {
+                    let ok = 0, err = 0;
+                    for (const d of toAdd) { try { await addDoc(carsCollection, d); ok++; } catch(e) { err++; } }
+                    alert('✅ Импортировано: ' + ok + '\n❌ Ошибок: ' + err);
                 }
-                alert(`✅ Импортировано: ${ok}\n❌ Ошибок: ${fail}`);
             };
             reader.readAsText(file);
             event.target.value = '';
         };
 
-        // ===== События =====
         document.getElementById('searchInput').addEventListener('input', renderCars);
-        document.getElementById('typeFilter').addEventListener('change', renderCars);
         document.getElementById('sortSelect').addEventListener('change', renderCars);
-        document.getElementById('carModal').addEventListener('click', e => { if (e.target.id === 'carModal') closeModal(); });
-        document.getElementById('settingsModal').addEventListener('click', e => { if (e.target.id === 'settingsModal') closeSettings(); });
+        document.getElementById('carModal').addEventListener('click', (e) => { if (e.target.id === 'carModal') closeModal(); });
 
-        // Заполняем фильтр типов
-        const typeFilter = document.getElementById('typeFilter');
-        VEHICLE_TYPES.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t; opt.textContent = t;
-            typeFilter.appendChild(opt);
-        });
+        // Старт
+        await loadSettings();
+        renderFilters();
     </script>
 </body>
 </html>
