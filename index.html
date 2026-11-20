@@ -6,7 +6,7 @@
     <title id="pageTitle">Учёт автомобилей</title>
     <link rel="icon" id="pageFavicon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚗</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+    <style id="dynamic-theme-style">
         :root {
             --bg-primary: #f8f9fa;
             --bg-secondary: #ffffff;
@@ -20,6 +20,14 @@
             --danger-color: #dc3545;
             --shadow: 0 2px 8px rgba(0,0,0,0.1);
             --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+            --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --header-radius: 14px;
+            --header-padding: 18px;
+            --header-font-size: 22px;
+            --card-padding: 14px 16px;
+            --card-radius: 10px;
+            --card-border: 4px;
+            --card-number-size: 18px;
         }
         [data-theme="dark"] {
             --bg-primary: #1a1d23;
@@ -31,11 +39,13 @@
             --shadow: 0 2px 8px rgba(0,0,0,0.3);
             --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
         }
+    </style>
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 18px; border-radius: 14px; box-shadow: var(--shadow); }
-        h1 { color: white; font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: var(--header-padding) 18px; background: var(--header-bg); border-radius: var(--header-radius); box-shadow: var(--shadow); }
+        h1 { color: white; font-size: var(--header-font-size); font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .header-subtitle { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 400; margin-top: 3px; width: 100%; }
         .header-actions { display: flex; gap: 10px; }
         .header-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
@@ -52,6 +62,7 @@
         .filters-clear { background: none; border: none; color: var(--accent-color); cursor: pointer; font-size: 13px; }
         .filters-chips { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip { padding: 6px 12px; border-radius: 20px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 13px; cursor: pointer; }
+        .chip:hover { border-color: var(--accent-color); }
         .chip.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
         .sort-container { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .sort-label { font-size: 14px; color: var(--text-secondary); white-space: nowrap; }
@@ -59,10 +70,10 @@
         .search-result-info { background: var(--accent-color); color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; display: none; }
         .search-result-info.visible { display: block; }
         .car-list { display: grid; gap: 12px; margin-bottom: 100px; }
-        .car-card { background: var(--bg-card); padding: 14px 16px; border-radius: 10px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid var(--accent-color); }
+        .car-card { background: var(--bg-card); padding: var(--card-padding); border-radius: var(--card-radius); box-shadow: var(--shadow); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border-left: var(--card-border) solid var(--accent-color); }
         .car-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
         .car-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
-        .car-number { font-size: 18px; font-weight: 700; color: var(--accent-color); display: flex; align-items: center; gap: 8px; }
+        .car-number { font-size: var(--card-number-size); font-weight: 700; color: var(--accent-color); display: flex; align-items: center; gap: 8px; }
         .car-type-badge { background: var(--bg-primary); color: var(--text-secondary); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
         .car-meta { display: flex; gap: 15px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
         .car-meta span { display: flex; align-items: center; gap: 5px; }
@@ -104,7 +115,7 @@
         .import-btn-full { width: 100%; padding: 14px; background: var(--success-color); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .config-link { display: inline-block; margin-top: 10px; color: var(--accent-color); font-size: 13px; text-decoration: none; }
         .config-link:hover { text-decoration: underline; }
-        @media (max-width: 768px) { h1 { font-size: 18px; } .modal-content { margin: 5% auto; padding: 18px; } .info-row { flex-direction: column; gap: 5px; } .info-label { min-width: auto; } .equipment-item { flex-wrap: wrap; } .equipment-item select { width: 100%; } }
+        @media (max-width: 768px) { h1 { font-size: calc(var(--header-font-size) - 4px); } .modal-content { margin: 5% auto; padding: 18px; } .info-row { flex-direction: column; gap: 5px; } .info-label { min-width: auto; } .equipment-item { flex-wrap: wrap; } .equipment-item select { width: 100%; } }
     </style>
 </head>
 <body>
@@ -143,7 +154,6 @@
         const db = getFirestore(app);
         const carsCollection = collection(db, 'cars');
 
-        // ===== ЗАГРУЗКА НАСТРОЕК ИЗ settings.json =====
         const DEFAULT_SETTINGS = {
             headerTitle: "Учёт автомобилей",
             headerSubtitle: "Рабочий инструмент",
@@ -175,23 +185,23 @@
         };
 
         let settings = { ...DEFAULT_SETTINGS };
+        let cars = [], currentCarId = null, activeFilters = new Set();
 
-        async function loadSettings() {
-            try {
-                const res = await fetch('settings.json?t=' + Date.now());
-                if (res.ok) {
-                    const loaded = await res.json();
-                    settings = { ...DEFAULT_SETTINGS, ...loaded };
-                }
-            } catch(e) {
-                console.warn('Не удалось загрузить settings.json, использую настройки по умолчанию');
-            }
-            applySettings();
+        function adjustColor(hex, amount) {
+            const num = parseInt(hex.slice(1), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) + amount));
+            const b = Math.max(0, Math.min(255, (num & 0xFF) + amount));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
         }
 
         function applySettings() {
-            // CSS переменные
             const root = document.documentElement;
+            const bg = settings.bgType === 'gradient' 
+                ? `linear-gradient(${settings.angle}deg, ${settings.color1} 0%, ${settings.color2} 100%)`
+                : settings.color1;
+
+            // Обновляем CSS-переменные в одном месте — без дублирования стилей
             root.style.setProperty('--accent-color', settings.accentColor);
             root.style.setProperty('--accent-hover', adjustColor(settings.accentColor, -20));
             root.style.setProperty('--success-color', settings.successColor);
@@ -199,25 +209,31 @@
             root.style.setProperty('--bg-primary', settings.lightBg);
             root.style.setProperty('--bg-secondary', settings.lightCard);
             root.style.setProperty('--bg-card', settings.lightCard);
+            root.style.setProperty('--header-bg', bg);
+            root.style.setProperty('--header-radius', settings.radius + 'px');
+            root.style.setProperty('--header-padding', settings.padding + 'px');
+            root.style.setProperty('--header-font-size', settings.fontSize + 'px');
+            root.style.setProperty('--card-radius', settings.cardRadius + 'px');
+            root.style.setProperty('--card-border', settings.cardBorder + 'px');
 
-            // Тёмная тема через data-атрибут
-            const darkStyle = document.createElement('style');
-            darkStyle.textContent = `[data-theme="dark"] { --bg-primary: ${settings.darkBg}; --bg-secondary: ${settings.darkCard}; --bg-card: ${settings.darkCard}; }`;
-            document.head.appendChild(darkStyle);
+            const cardPadding = settings.cardSize === 'compact' ? '10px 12px' : settings.cardSize === 'large' ? '18px 20px' : '14px 16px';
+            const cardFontSize = settings.cardSize === 'compact' ? '14px' : settings.cardSize === 'large' ? '20px' : '18px';
+            root.style.setProperty('--card-padding', cardPadding);
+            root.style.setProperty('--card-number-size', cardFontSize);
+
+            // Тёмная тема — через CSS-переменные в существующем стиле
+            const darkStyle = document.getElementById('dynamic-theme-style');
+            if (darkStyle) {
+                const darkRules = `[data-theme="dark"] { --bg-primary: ${settings.darkBg}; --bg-secondary: ${settings.darkCard}; --bg-card: ${settings.darkCard}; }`;
+                // Находим и заменяем только блок [data-theme="dark"]
+                const fullCSS = darkStyle.textContent;
+                const newCSS = fullCSS.replace(/\[data-theme="dark"\]\s*\{[^}]*\}/, darkRules);
+                darkStyle.textContent = newCSS;
+            }
 
             // Шапка
-            const bg = settings.bgType === 'gradient' 
-                ? `linear-gradient(${settings.angle}deg, ${settings.color1} 0%, ${settings.color2} 100%)`
-                : settings.color1;
-            const header = document.getElementById('mainHeader');
-            header.style.background = bg;
-            header.style.borderRadius = settings.radius + 'px';
-            header.style.padding = settings.padding + 'px 18px';
-
             const titleEl = document.getElementById('headerTitle');
             titleEl.innerHTML = `<i class="fas ${settings.icon}"></i> ${settings.headerTitle}`;
-            titleEl.style.fontSize = settings.fontSize + 'px';
-
             if (settings.headerSubtitle) {
                 const sub = document.createElement('div');
                 sub.className = 'header-subtitle';
@@ -228,28 +244,26 @@
             // Страница
             document.getElementById('pageTitle').textContent = settings.pageTitle;
             document.getElementById('pageFavicon').href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${encodeURIComponent(settings.pageFavicon)}</text></svg>`;
-
-            // Карточки
-            const cardPadding = settings.cardSize === 'compact' ? '10px 12px' : settings.cardSize === 'large' ? '18px 20px' : '14px 16px';
-            const cardFontSize = settings.cardSize === 'compact' ? '14px' : settings.cardSize === 'large' ? '20px' : '18px';
-            const cardStyle = document.createElement('style');
-            cardStyle.textContent = `
-                .car-card { padding: ${cardPadding}; border-radius: ${settings.cardRadius}px; border-left: ${settings.cardBorder}px solid var(--accent-color); }
-                .car-number { font-size: ${cardFontSize}; }
-            `;
-            document.head.appendChild(cardStyle);
         }
 
-        function adjustColor(hex, amount) {
-            const num = parseInt(hex.slice(1), 16);
-            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
-            const g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) + amount));
-            const b = Math.max(0, Math.min(255, (num & 0xFF) + amount));
-            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        async function loadSettings() {
+            try {
+                const res = await fetch('settings.json?t=' + Date.now());
+                if (res.ok) {
+                    const loaded = await res.json();
+                    settings = { ...DEFAULT_SETTINGS, ...loaded };
+                    // Защита от пустого массива типов
+                    if (!settings.enabledTypes || settings.enabledTypes.length === 0) {
+                        settings.enabledTypes = DEFAULT_SETTINGS.enabledTypes;
+                    }
+                    console.log('Настройки загружены из settings.json');
+                } else {
+                    console.warn('settings.json не найден, использую настройки по умолчанию');
+                }
+            } catch(e) {
+                console.warn('Ошибка загрузки settings.json:', e.message);
+            }
         }
-
-        // ===== ОСНОВНАЯ ЛОГИКА =====
-        let cars = [], currentCarId = null, activeFilters = new Set();
 
         function initTheme() {
             const t = localStorage.getItem('theme') || 'light';
@@ -259,26 +273,19 @@
             document.documentElement.setAttribute('data-theme', t);
             localStorage.setItem('theme', t);
         }
-        initTheme();
 
         function renderFilters() {
             document.getElementById('filtersChips').innerHTML = settings.enabledTypes.map(t =>
                 `<div class="chip ${activeFilters.has(t) ? 'active' : ''}" onclick="toggleFilter('${t}')">${t}</div>`
             ).join('');
         }
+
         window.toggleFilter = function(t) {
             activeFilters.has(t) ? activeFilters.delete(t) : activeFilters.add(t);
             renderFilters();
             renderCars();
         };
         window.clearFilters = function() { activeFilters.clear(); renderFilters(); renderCars(); };
-
-        onSnapshot(carsCollection, (s) => {
-            cars = [];
-            s.forEach(d => cars.push({ id: d.id, ...d.data() }));
-            renderCars();
-            updateStats();
-        });
 
         function updateStats() { document.getElementById('totalCars').textContent = cars.length; }
 
@@ -489,9 +496,18 @@
         document.getElementById('sortSelect').addEventListener('change', renderCars);
         document.getElementById('carModal').addEventListener('click', (e) => { if (e.target.id === 'carModal') closeModal(); });
 
-        // Старт
+        // ===== ЗАПУСК =====
+        initTheme();
         await loadSettings();
+        applySettings();
         renderFilters();
+
+        onSnapshot(carsCollection, (s) => {
+            cars = [];
+            s.forEach(d => cars.push({ id: d.id, ...d.data() }));
+            renderCars();
+            updateStats();
+        });
     </script>
 </body>
 </html>
